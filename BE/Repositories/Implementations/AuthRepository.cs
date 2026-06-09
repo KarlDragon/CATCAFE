@@ -25,12 +25,12 @@ public class AuthRepository : IAuthRepository
             .FirstOrDefaultAsync(u => u.Email == identifier || u.Username == identifier);
     }
 
-    public async Task<bool> DeleteRefreshTokenAsync(string refreshtoken)
+    public async Task<bool> DeleteRefreshTokenAsync(string token)
     {
-        var token = await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == refreshtoken);
-        if (token == null) return false;
+        var refreshToken = await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == token);
+        if (refreshToken == null) return false;
 
-        _context.RefreshTokens.Remove(token);
+        _context.RefreshTokens.Remove(refreshToken);
         await _context.SaveChangesAsync();
         return true;
     }
