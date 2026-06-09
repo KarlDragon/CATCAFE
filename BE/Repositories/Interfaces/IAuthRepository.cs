@@ -13,7 +13,7 @@ public interface IAuthRepository
     Task<bool> DeleteRefreshTokenAsync(string refreshtoken);
 
     // Create a new refresh token for a user and return the created token object
-    Task<RefreshToken> CreateRefreshTokenAsync(int userId, string token, DateTime expires);
+    Task<RefreshToken> CreateRefreshTokenAsync(RefreshToken token);
 
     // Validate a refresh token and return the associated user if valid
     Task<RefreshToken?> GetRefreshTokenAsync(string token);
