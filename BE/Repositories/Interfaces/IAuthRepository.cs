@@ -3,11 +3,18 @@ using BE.Models;
 
 public interface IAuthRepository
 {
+    // Register a new user and return the created user object
     Task<Users> RegisterAsync(Users user);
 
-    Task<Users> LoginAsync(string email, string passwordhash);
+    // Login a user by email or username and return the user object if found 
+    Task<Users?> GetUserByIdentifierAsync(string identifier);
 
-    Task<Users> LogoutAsync();
+    // Save a refresh token for a user and return a boolean indicating success
+    Task<bool> DeleteRefreshTokenAsync(string refreshtoken);
 
+    // Create a new refresh token for a user and return the created token object
+    Task<RefreshToken> CreateRefreshTokenAsync(int userId, string token, DateTime expires);
 
+    // Validate a refresh token and return the associated user if valid
+    Task<RefreshToken?> GetRefreshTokenAsync(string token);
 }
