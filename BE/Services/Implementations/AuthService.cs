@@ -7,7 +7,7 @@ using BE.DTOs;
 
 public class AuthService : IAuthService
 {
-    private readonly RegisterValidator _requestValidation;
+    private readonly RegisterValidator _registerValidation;
     private readonly LoginValidator _loginValidation;
     private readonly IRegistrationFilterService _bloomFilter;
     private readonly IAuthRepository _authRepository;
@@ -17,7 +17,7 @@ public class AuthService : IAuthService
                         IRegistrationFilterService bloomFilter, 
                         IAuthRepository authRepository)
     {
-        _requestValidation = registerValidation;
+        _registerValidation = registerValidation;
         _loginValidation = loginValidation;
         _bloomFilter = bloomFilter;
         _authRepository = authRepository;
@@ -25,7 +25,7 @@ public class AuthService : IAuthService
 
     public async Task<RegisterDTO> Register(RegisterDTO registerDTO)
     {
-        var validationResult = await _requestValidation.ValidateAsync(registerDTO);
+        var validationResult = await _registerValidation.ValidateAsync(registerDTO);
         if (!validationResult.IsValid)
         {
             throw new ValidationException(validationResult.Errors);
