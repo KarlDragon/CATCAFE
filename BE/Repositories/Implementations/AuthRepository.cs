@@ -12,11 +12,11 @@ public class AuthRepository : IAuthRepository
         _context = context;
     }
 
-    public async Task<Users> RegisterAsync(Users user)
+    public async Task<bool> RegisterAsync(Users user)
     {
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
-        return user;
+        return true;
     }
 
     public async Task<Users?> GetUserByIdentifierAsync(string identifier)

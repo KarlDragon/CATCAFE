@@ -30,15 +30,25 @@ public class AuthService : IAuthService
         {
             throw new ValidationException(validationResult.Errors);
         }
+
         // Check Bloom filter for email and username
         if (await _bloomFilter.IsEmailRegistered(registerDTO.Email))
         {
-            throw new Exception("Email already exists");
+            var existingUser = await _authRepository.GetUserByIdentifierAsync(registerDTO.Email);
+            if (existingUser != null)
+            {
+                throw new Exception("Email already exists");
+            }
         }
         if (await _bloomFilter.IsUsernameRegistered(registerDTO.Username))
         {
-            throw new Exception("Username already exists");
+            var existingUser = await _authRepository.GetUserByIdentifierAsync(registerDTO.Username);
+            if (existingUser != null)
+            {
+                throw new Exception("Username already exists");
+            }
         }
+
         // Hash the password
         string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDTO.Password);
         
@@ -50,11 +60,13 @@ public class AuthService : IAuthService
             Role = registerDTO.Role,
             Name = registerDTO.Name
         };
-        // Add email and username to Bloom filter
-        await _bloomFilter.AddEmailToBloomFilter(registerDTO.Email);
-        await _bloomFilter.AddUsernameToBloomFilter(registerDTO.Username);
 
-        await _authRepository.RegisterAsync(user);
+        bool isRegistered = await _authRepository.RegisterAsync(user);
+        if (!isRegistered){
+            await _bloomFilter.AddEmailToBloomFilter(registerDTO.Email);
+            await _bloomFilter.AddUsernameToBloomFilter(registerDTO.Username);
+        }    
+        
         return registerDTO;
     }
 

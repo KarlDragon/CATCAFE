@@ -3,8 +3,8 @@ using BE.Models;
 
 public interface IAuthRepository
 {
-    // Register a new user and return the created user object
-    Task<Users> RegisterAsync(Users user);
+    // Register a new user and return boolean indicating success or failure
+    Task<bool> RegisterAsync(Users user);
 
     // Login a user by email or username and return the user object if found 
     Task<Users?> GetUserByIdentifierAsync(string identifier);
