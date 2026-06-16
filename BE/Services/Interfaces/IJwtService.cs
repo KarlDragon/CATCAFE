@@ -4,6 +4,6 @@ public interface IJwtService
 {
     public string GenerateToken(Users users);
     public string GernerateRefreshToken();
-    public Task<RefreshToken?> ValidateRefreshTokenAsync(int userID);
+    public Task<String?> ValidateRefreshTokenAsync(int userID);
 }
 
