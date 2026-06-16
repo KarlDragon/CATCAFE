@@ -3,4 +3,6 @@ using BE.Models;
 public interface IJwtService
 {
     public string GenerateToken(Users users);
+    public string GernerateRefreshToken();
 }
+
