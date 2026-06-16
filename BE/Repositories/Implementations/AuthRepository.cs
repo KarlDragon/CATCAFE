@@ -42,8 +42,9 @@ public class AuthRepository : IAuthRepository
         return token;
     }
 
-    public async Task<RefreshToken?> GetRefreshTokenAsync(string token)
+    public async Task<RefreshToken?> GetRefreshTokenAsync(int userID)
     {
-        return await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == token);
+        return await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.UserID == userID);
     }
+
 }
