@@ -6,14 +6,15 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-
+using BE.Repositories.Interfaces;
 public class JwtService : IJwtService
 {
     private readonly IConfiguration _config;
-
-    public JwtService( IConfiguration configuration)
+    private readonly IAuthRepository _authRepository;
+    public JwtService( IConfiguration configuration, IAuthRepository authRepository)
     {
         _config = configuration;
+        _authRepository = authRepository;
     }
 
     public string GenerateToken(Users users)
@@ -55,5 +56,12 @@ public class JwtService : IJwtService
         using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
         return Convert.ToBase64String(randomNumber);
+    }
+
+    public bool ValidateRefreshToken(int userID)
+    {
+        var token = _authRepository.GetUserByIdentifierAsync(userID.ToString());
+        if (token == null ) return false;
+        return true;
     }
 }
