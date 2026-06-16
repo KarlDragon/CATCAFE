@@ -3,7 +3,7 @@ using BE.Models;
 public interface IJwtService
 {
     public string GenerateToken(Users users);
-    public string GernerateRefreshToken();
+    public string GenerateRefreshToken();
     public Task<String?> ValidateRefreshTokenAsync(int userID);
 }
 
