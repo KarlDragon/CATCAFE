@@ -7,6 +7,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using BE.Repositories.Interfaces;
+using System.Threading.Tasks;
+
 public class JwtService : IJwtService
 {
     private readonly IConfiguration _config;
@@ -58,10 +60,10 @@ public class JwtService : IJwtService
         return Convert.ToBase64String(randomNumber);
     }
 
-    public bool ValidateRefreshToken(int userID)
+    public async Task<bool> ValidateRefreshTokenAsync(int userID)
     {
-        var token = _authRepository.GetUserByIdentifierAsync(userID.ToString());
-        if (token == null ) return false;
-        return true;
+        var refreshToken = await _authRepository.GetRefreshTokenAsync(userID);
+        if (refreshToken == null ) return false;
+        return refreshToken.Expires > DateTime.UtcNow;
     }
 }
