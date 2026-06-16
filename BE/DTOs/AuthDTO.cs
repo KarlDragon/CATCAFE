@@ -13,6 +13,7 @@ public class LoginDTO
 {
     public string EmailOrUsername { get; set; } = "";
     public string Password { get; set; } = "";
+    public string RefreshToken { get; set;} = "";
 }
 
 public class AuthResponseDTO
