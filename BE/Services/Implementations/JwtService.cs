@@ -32,8 +32,6 @@ public class JwtService : IJwtService
         {
             new Claim(ClaimTypes.NameIdentifier, users.Id.ToString()),
             new Claim(ClaimTypes.Name, users.Username),
-            new Claim(ClaimTypes.Email, users.Email),
-            new Claim("showedName", users.Name),
             new Claim(ClaimTypes.Role, users.Role)
         };
         
