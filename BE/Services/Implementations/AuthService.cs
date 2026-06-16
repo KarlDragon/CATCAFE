@@ -11,19 +11,21 @@ public class AuthService : IAuthService
     private readonly LoginValidator _loginValidation;
     private readonly IRegistrationFilterService _bloomFilter;
     private readonly IAuthRepository _authRepository;
-
+    private readonly IJwtService _iJwtService;
     public AuthService(RegisterValidator registerValidation, 
                         LoginValidator loginValidation, 
                         IRegistrationFilterService bloomFilter, 
-                        IAuthRepository authRepository)
+                        IAuthRepository authRepository,
+                        IJwtService jwtService)
     {
         _registerValidation = registerValidation;
         _loginValidation = loginValidation;
         _bloomFilter = bloomFilter;
         _authRepository = authRepository;
+        _iJwtService = jwtService;
     }
 
-    public async Task<RegisterDTO> Register(RegisterDTO registerDTO)
+    public async Task<bool> Register(RegisterDTO registerDTO)
     {
         var validationResult = await _registerValidation.ValidateAsync(registerDTO);
         if (!validationResult.IsValid)
@@ -67,10 +69,10 @@ public class AuthService : IAuthService
             await _bloomFilter.AddUsernameToBloomFilter(registerDTO.Username);
         }    
         
-        return registerDTO;
+        return true;
     }
 
-    public async Task<LoginDTO> Login(LoginDTO loginDTO)
+    public async Task<AuthResponseDTO> Login(LoginDTO loginDTO)
     {
         var validationResult = await _loginValidation.ValidateAsync(loginDTO);
         if (!validationResult.IsValid)
@@ -87,6 +89,15 @@ public class AuthService : IAuthService
         {
             throw new Exception("Invalid password");
         }
-        return loginDTO;
+
+        var token = _iJwtService.GenerateToken(user);
+
+        return new AuthResponseDTO{
+            Token = token,
+            Username = user.Username,
+            Email = user.Email,
+            Role = user.Role,
+            Name = user.Name
+        };
     }
 }

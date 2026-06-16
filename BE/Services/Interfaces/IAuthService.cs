@@ -4,6 +4,6 @@ namespace BE.Services.Interfaces;
 
 public interface IAuthService
 {
-    Task<RegisterDTO> Register(RegisterDTO registerDTO);
-    Task<LoginDTO> Login(LoginDTO loginDTO);
+    Task<bool> Register(RegisterDTO registerDTO);
+    Task<AuthResponseDTO> Login(LoginDTO loginDTO);
 }
