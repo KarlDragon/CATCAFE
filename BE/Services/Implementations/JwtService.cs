@@ -60,10 +60,11 @@ public class JwtService : IJwtService
         return Convert.ToBase64String(randomNumber);
     }
 
-    public async Task<bool> ValidateRefreshTokenAsync(int userID)
+    public async Task<RefreshToken?> ValidateRefreshTokenAsync(int userID)
     {
         var refreshToken = await _authRepository.GetRefreshTokenAsync(userID);
-        if (refreshToken == null ) return false;
-        return refreshToken.Expires > DateTime.UtcNow;
+        if ( refreshToken != null && refreshToken.Expires > DateTime.UtcNow) return refreshToken;
+        // token is missing or exprired
+        return null;
     }
 }
