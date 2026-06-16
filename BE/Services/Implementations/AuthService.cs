@@ -78,6 +78,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDTO> Login(LoginDTO loginDTO)
     {
+        loginDTO.EmailOrUsername = loginDTO.EmailOrUsername.Trim().ToLower();
         var validationResult = await _loginValidation.ValidateAsync(loginDTO);
         if (!validationResult.IsValid)
         {
