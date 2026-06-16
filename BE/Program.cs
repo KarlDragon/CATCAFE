@@ -30,6 +30,7 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 // Scoped services
 builder.Services.AddScoped<IRegistrationFilterService, RegistrationFilterService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 var app = builder.Build();
 app.UseHttpsRedirection();
