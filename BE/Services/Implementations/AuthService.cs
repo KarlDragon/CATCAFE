@@ -27,6 +27,10 @@ public class AuthService : IAuthService
 
     public async Task<bool> Register(RegisterDTO registerDTO)
     {
+        // Clean data before validation
+        registerDTO.Email = registerDTO.Email.Trim().ToLower();
+        registerDTO.Username = registerDTO.Username.Trim().ToLower();
+
         var validationResult = await _registerValidation.ValidateAsync(registerDTO);
         if (!validationResult.IsValid)
         {
@@ -90,10 +94,36 @@ public class AuthService : IAuthService
             throw new Exception("Invalid password");
         }
 
-        var token = _iJwtService.GenerateToken(user);
+        string refreshTokenDTO;
 
+        var validatedRefreshToken = await _iJwtService.ValidateRefreshTokenAsync(user.Id);
+
+        if (validatedRefreshToken != null)
+        {
+            if (loginDTO.RefreshToken != validatedRefreshToken)
+            {
+                throw new UnauthorizedAccessException("Refresh token mismatch.");
+            }
+            refreshTokenDTO = validatedRefreshToken; 
+        }
+        else
+        {
+            refreshTokenDTO = _iJwtService.GenerateRefreshToken();
+            var refreshToken = new RefreshToken
+            {
+                Token = refreshTokenDTO,
+                Expires = DateTime.UtcNow.AddDays(30),
+                UserID = user.Id
+            };
+            await _authRepository.CreateRefreshTokenAsync(refreshToken);
+        }
+
+        //temp jwt token will be created anyways
+        var token = _iJwtService.GenerateToken(user);
+        
         return new AuthResponseDTO{
             Token = token,
+            RefreshToken = refreshTokenDTO,
             Username = user.Username,
             Email = user.Email,
             Role = user.Role,
