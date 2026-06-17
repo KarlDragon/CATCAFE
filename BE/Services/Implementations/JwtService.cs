@@ -102,6 +102,7 @@ public class JwtService : IJwtService
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
             ValidIssuer = validateIssuer,
             ValidAudience = validateAudience,
+            ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
 
