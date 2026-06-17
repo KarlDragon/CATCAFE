@@ -4,7 +4,10 @@ using BE.Repositories.Interfaces;
 using BE.Services.Interfaces;
 using BE.Models;
 using BE.DTOs;
-
+using System.Security.Cryptography;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 public class AuthService : IAuthService
 {
     private readonly RegisterValidator _registerValidation;
@@ -16,7 +19,8 @@ public class AuthService : IAuthService
                         LoginValidator loginValidation, 
                         IRegistrationFilterService bloomFilter, 
                         IAuthRepository authRepository,
-                        IJwtService jwtService)
+                        IJwtService jwtService
+                        )
     {
         _registerValidation = registerValidation;
         _loginValidation = loginValidation;
@@ -43,7 +47,7 @@ public class AuthService : IAuthService
             var existingUser = await _authRepository.GetUserByIdentifierAsync(registerDTO.Email);
             if (existingUser != null)
             {
-                throw new Exception("Email already exists");
+                throw new UnauthorizedAccessException("Invalid credentials.");
             }
         }
         if (await _bloomFilter.IsUsernameRegistered(registerDTO.Username))
@@ -51,7 +55,7 @@ public class AuthService : IAuthService
             var existingUser = await _authRepository.GetUserByIdentifierAsync(registerDTO.Username);
             if (existingUser != null)
             {
-                throw new Exception("Username already exists");
+                throw new UnauthorizedAccessException("Invalid credentials.");
             }
         }
 
@@ -68,7 +72,7 @@ public class AuthService : IAuthService
         };
 
         bool isRegistered = await _authRepository.RegisterAsync(user);
-        if (!isRegistered){
+        if (isRegistered){
             await _bloomFilter.AddEmailToBloomFilter(registerDTO.Email);
             await _bloomFilter.AddUsernameToBloomFilter(registerDTO.Username);
         }    
@@ -88,47 +92,36 @@ public class AuthService : IAuthService
         var user = await _authRepository.GetUserByIdentifierAsync(loginDTO.EmailOrUsername);
         if (user == null)
         {
-            throw new Exception("User not found");
+            throw new UnauthorizedAccessException("User not found");
         }
         if (!BCrypt.Net.BCrypt.Verify(loginDTO.Password, user.PasswordHash))
         {
-            throw new Exception("Invalid password");
+            throw new UnauthorizedAccessException("Invalid password");
         }
 
-        string refreshTokenDTO;
-
-        var validatedRefreshToken = await _iJwtService.ValidateRefreshTokenAsync(user.Id);
-
-        if (validatedRefreshToken != null)
-        {
-            if (loginDTO.RefreshToken != validatedRefreshToken)
-            {
-                throw new UnauthorizedAccessException("Refresh token mismatch.");
-            }
-            refreshTokenDTO = validatedRefreshToken; 
-        }
-        else
-        {
-            refreshTokenDTO = _iJwtService.GenerateRefreshToken();
-            var refreshToken = new RefreshToken
-            {
-                Token = refreshTokenDTO,
-                Expires = DateTime.UtcNow.AddDays(30),
-                UserID = user.Id
-            };
-            await _authRepository.CreateRefreshTokenAsync(refreshToken);
-        }
-
-        //temp jwt token will be created anyways
+        //temp jwt token and refreshToken will be created anyways
+        //refresh token is only generated if user log out or it's expired
         var token = _iJwtService.GenerateToken(user);
-        
+        var refreshToken = _iJwtService.GenerateRefreshToken();
+
+        // hash and save refreshToken
+        var hashRefreshToken = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(refreshToken)));
+        var storedRefreshToken = new RefreshToken
+        {
+            Token = hashRefreshToken,
+            Expires = DateTime.Now.AddDays(30),
+            UserID = user.Id
+        };
+        await _authRepository.CreateRefreshTokenAsync(storedRefreshToken);
+
         return new AuthResponseDTO{
             Token = token,
-            RefreshToken = refreshTokenDTO,
+            RefreshToken = refreshToken,
             Username = user.Username,
             Email = user.Email,
             Role = user.Role,
             Name = user.Name
         };
     }
+
 }
