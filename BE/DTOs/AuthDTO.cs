@@ -25,3 +25,9 @@ public class AuthResponseDTO
     public string Role { get; set; } = "";
     public string Name { get; set; } = "";
 }
+
+public class StatusResponseDTO
+{
+    public string Token {get; set;} = "";
+    public string RefreshToken {get; set;} = "";
+}
