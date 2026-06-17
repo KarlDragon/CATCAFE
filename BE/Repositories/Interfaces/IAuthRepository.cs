@@ -9,6 +9,8 @@ public interface IAuthRepository
     // Login a user by email or username and return the user object if found 
     Task<Users?> GetUserByIdentifierAsync(string identifier);
 
+    public Task<Users?> GetUserById(int id);
+
     // Save a refresh token for a user and return a boolean indicating success
     Task<bool> DeleteRefreshTokenAsync(string token);
 
