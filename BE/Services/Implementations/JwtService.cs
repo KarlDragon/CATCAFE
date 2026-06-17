@@ -8,15 +8,19 @@ using System.Security.Claims;
 using System.Text;
 using BE.Repositories.Interfaces;
 using System.Threading.Tasks;
+using BE.DTOs;
+using Microsoft.Extensions.Configuration.UserSecrets;
 
 public class JwtService : IJwtService
 {
     private readonly IConfiguration _config;
     private readonly IAuthRepository _authRepository;
-    public JwtService( IConfiguration configuration, IAuthRepository authRepository)
+    private readonly ILogger _logger;
+    public JwtService( IConfiguration configuration, IAuthRepository authRepository, ILogger logger)
     {
         _config = configuration;
         _authRepository = authRepository;
+        _logger = logger;
     }
 
     public string GenerateToken(Users users)
@@ -60,11 +64,63 @@ public class JwtService : IJwtService
         return Convert.ToBase64String(randomNumber);
     }
 
-    public async Task<string?> ValidateRefreshTokenAsync(int userID)
+    // Return key when it's not null or expired
+    public async Task<string?> ValidateRefreshTokenAsync(int userID, string refreshTokenDTO)
     {
         var refreshToken = await _authRepository.GetRefreshTokenAsync(userID);
         if ( refreshToken != null && refreshToken.Expires > DateTime.UtcNow) return refreshToken.Token;
         // token is missing or exprired
         return null;
+    }
+
+    public async Task<bool> ValidateTempTokenAsync( string token )
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        // Get secret key, same thing in jwt Service :V
+        var jwtSettings = _config.GetSection("JwtSettings");
+        var secretKey = jwtSettings["SecretKey"];
+        if (secretKey == null)
+        {
+            throw new Exception("CHECK THE SECRETKEY IN JWTSETTINGS!!!!");
+        }
+
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ClockSkew = TimeSpan.Zero
+        };
+
+        try{
+            var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+            var jwtToken = validatedToken as JwtSecurityToken;
+            if (jwtToken == null || !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return false;
+            }
+
+            var idValue = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(idValue, out int userId))
+            {
+                _logger.LogError(" Seem like can't parse userId from token, re-check it");
+                return false;
+            }
+
+            var user = await _authRepository.GetUserById(userId);
+            if (user == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+        catch ( SecurityTokenException ex)
+        {
+            _logger.LogCritical(ex, "Invalid token");
+            return false;
+        }
     }
 }
