@@ -6,8 +6,6 @@ using BE.Models;
 using BE.DTOs;
 using System.Security.Cryptography;
 using System.Text;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
 public class AuthService : IAuthService
 {
     private readonly RegisterValidator _registerValidation;
@@ -15,11 +13,13 @@ public class AuthService : IAuthService
     private readonly IRegistrationFilterService _bloomFilter;
     private readonly IAuthRepository _authRepository;
     private readonly IJwtService _iJwtService;
+    private readonly ILogger _logger;
     public AuthService(RegisterValidator registerValidation, 
                         LoginValidator loginValidation, 
                         IRegistrationFilterService bloomFilter, 
                         IAuthRepository authRepository,
-                        IJwtService jwtService
+                        IJwtService jwtService,
+                        ILogger logger
                         )
     {
         _registerValidation = registerValidation;
@@ -27,6 +27,7 @@ public class AuthService : IAuthService
         _bloomFilter = bloomFilter;
         _authRepository = authRepository;
         _iJwtService = jwtService;
+        _logger = logger;
     }
 
     public async Task<bool> Register(RegisterDTO registerDTO)
@@ -124,4 +125,24 @@ public class AuthService : IAuthService
         };
     }
 
+    public async Task<string?> Refresh (RefreshDTO refreshDTO)
+    {
+        if (await _iJwtService.ValidateRefreshTokenAsync(refreshDTO.UserId, refreshDTO.RefreshToken))
+        {
+            var user = await _authRepository.GetUserById(refreshDTO.UserId);
+            if ( user == null)
+            {
+                _logger.LogWarning(" User don't exist ");
+                return null;
+            }
+            var token = _iJwtService.GenerateToken(user);
+            return token;
+        }
+        else
+        {
+            _logger.LogWarning(" RefreshToken invalid");
+            return null;
+        }
+
+    }
 }
