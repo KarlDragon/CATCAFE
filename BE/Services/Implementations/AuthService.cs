@@ -110,7 +110,7 @@ public class AuthService : IAuthService
         var storedRefreshToken = new RefreshToken
         {
             Token = hashRefreshToken,
-            Expires = DateTime.Now.AddDays(30),
+            Expires = DateTime.UtcNow.AddDays(30),
             UserID = user.Id
         };
         await _authRepository.CreateRefreshTokenAsync(storedRefreshToken);
