@@ -29,9 +29,9 @@ public class AuthRepository : IAuthRepository
             .FirstOrDefaultAsync(u => u.Email == identifier || u.Username == identifier);
     }
 
-    public async Task<bool> DeleteRefreshTokenAsync(string token)
+    public async Task<bool> DeleteRefreshTokenAsync(int userId)
     {
-        var refreshToken = await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == token);
+        var refreshToken = await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.UserID == userId);
         if (refreshToken == null) return false;
 
         _context.RefreshTokens.Remove(refreshToken);

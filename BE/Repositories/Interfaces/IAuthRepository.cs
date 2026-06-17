@@ -12,7 +12,7 @@ public interface IAuthRepository
     public Task<Users?> GetUserById(int id);
 
     // Save a refresh token for a user and return a boolean indicating success
-    Task<bool> DeleteRefreshTokenAsync(string token);
+    Task<bool> DeleteRefreshTokenAsync(int userId);
 
     // Create a new refresh token for a user and return the created token object
     Task<RefreshToken> CreateRefreshTokenAsync(RefreshToken token);
