@@ -8,8 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using BE.Repositories.Interfaces;
 using System.Threading.Tasks;
-using BE.DTOs;
-using Microsoft.Extensions.Configuration.UserSecrets;
+using System.Security.Cryptography;
 
 public class JwtService : IJwtService
 {
@@ -58,19 +57,28 @@ public class JwtService : IJwtService
 
     public string GenerateRefreshToken()
     {
-        var randomNumber = new byte[64];
-        using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
-        rng.GetBytes(randomNumber);
-        return Convert.ToBase64String(randomNumber);
+        var bytes = new byte[32];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(bytes);
+        var refreshToken = Convert.ToBase64String(bytes).Replace('+', '-').Replace('/','_').TrimEnd('=');
+        return refreshToken;
     }
 
-    // Return key when it's not null or expired
-    public async Task<string?> ValidateRefreshTokenAsync(int userID, string refreshTokenDTO)
+    public async Task<bool> ValidateRefreshTokenAsync(int userID, string rawRefreshToken)
     {
         var refreshToken = await _authRepository.GetRefreshTokenAsync(userID);
-        if ( refreshToken != null && refreshToken.Expires > DateTime.UtcNow) return refreshToken.Token;
-        // token is missing or exprired
-        return null;
+
+        if ( refreshToken == null) return false;
+        if ( refreshToken.Expires <= DateTime.UtcNow) return false;
+
+        
+        // get both token byte
+        byte[] refreshTokenByte = Convert.FromHexString(refreshToken.Token);
+        byte[] clientRefreshTokenbyte = SHA256.HashData(Encoding.UTF8.GetBytes(rawRefreshToken));
+
+        if (!CryptographicOperations.FixedTimeEquals(refreshTokenByte, clientRefreshTokenbyte)) return false;
+
+        return true;
     }
 
     public async Task<bool> ValidateTempTokenAsync( string token )
@@ -80,17 +88,20 @@ public class JwtService : IJwtService
         // Get secret key, same thing in jwt Service :V
         var jwtSettings = _config.GetSection("JwtSettings");
         var secretKey = jwtSettings["SecretKey"];
-        if (secretKey == null)
+        var validateIssuer = jwtSettings["Issuer"];
+        var validateAudience = jwtSettings["Audience"];
+
+        if (secretKey == null || validateIssuer == null || validateAudience == null)
         {
-            throw new Exception("CHECK THE SECRETKEY IN JWTSETTINGS!!!!");
+            throw new Exception("CHECK THE JWTSETTINGS!!!!");
         }
 
         var validationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-            ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidIssuer = validateIssuer,
+            ValidAudience = validateAudience,
             ClockSkew = TimeSpan.Zero
         };
 
@@ -117,9 +128,9 @@ public class JwtService : IJwtService
 
             return true;
         }
-        catch ( SecurityTokenException ex)
+        catch ( SecurityTokenException )
         {
-            _logger.LogCritical(ex, "Invalid token");
+            _logger.LogWarning("Invalid token");
             return false;
         }
     }
