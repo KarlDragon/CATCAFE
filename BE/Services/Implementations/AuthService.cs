@@ -100,6 +100,8 @@ public class AuthService : IAuthService
             throw new UnauthorizedAccessException("Invalid password");
         }
 
+        // Delete old refresh token when login
+        await _authRepository.DeleteRefreshTokenAsync(user.Id);
         //temp jwt token and refreshToken will be created anyways
         //refresh token is only generated if user log out or it's expired
         var token = _iJwtService.GenerateToken(user);
