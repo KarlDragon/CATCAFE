@@ -1,6 +1,6 @@
 using BE.DTOs;
 using FluentValidation;
-
+using FluentValidation.Results;
 public class LoginValidator : AbstractValidator<LoginDTO>
 {
     public LoginValidator()
@@ -16,5 +16,18 @@ public class LoginValidator : AbstractValidator<LoginDTO>
             .MinimumLength(8).WithMessage("Password phải có ít nhất 8 ký tự.")
             .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$")
             .WithMessage("Password không hợp lệ.");
+    }
+
+    protected override bool PreValidate(ValidationContext<LoginDTO> context, ValidationResult result)
+    {
+        var dto = context.InstanceToValidate;
+        if ( dto != null)
+        {
+            if (!string.IsNullOrEmpty(dto.EmailOrUsername))
+            {
+                dto.EmailOrUsername = dto.EmailOrUsername.Trim().ToLower();
+            }
+        }
+        return true;
     }
 }

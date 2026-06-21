@@ -1,5 +1,6 @@
 using BE.DTOs;
 using FluentValidation;
+using FluentValidation.Results;
 
 public class RegisterValidator : AbstractValidator<RegisterDTO>
 {
@@ -27,5 +28,22 @@ public class RegisterValidator : AbstractValidator<RegisterDTO>
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Name không được để trống.")
             .Length(3, 100).WithMessage("Name phải từ 3 đến 100 ký tự.");
+    }
+
+    protected override bool PreValidate(ValidationContext<RegisterDTO> context, ValidationResult result)
+    {
+        var dto = context.InstanceToValidate;
+        if ( dto != null)
+        {
+            if (!string.IsNullOrEmpty(dto.Username))
+            {
+                dto.Username = dto.Username.Trim().ToLower();
+            }
+            if (!string.IsNullOrEmpty(dto.Email))
+            {
+                dto.Email = dto.Email.Trim().ToLower();
+            }
+        }
+        return true;
     }
 }
