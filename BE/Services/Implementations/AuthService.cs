@@ -8,22 +8,16 @@ using System.Security.Cryptography;
 using System.Text;
 public class AuthService : IAuthService
 {
-    private readonly RegisterValidator _registerValidation;
-    private readonly LoginValidator _loginValidation;
     private readonly IRegistrationFilterService _bloomFilter;
     private readonly IAuthRepository _authRepository;
     private readonly IJwtService _iJwtService;
     private readonly ILogger _logger;
-    public AuthService(RegisterValidator registerValidation, 
-                        LoginValidator loginValidation, 
-                        IRegistrationFilterService bloomFilter, 
+    public AuthService(IRegistrationFilterService bloomFilter, 
                         IAuthRepository authRepository,
                         IJwtService jwtService,
                         ILogger logger
                         )
     {
-        _registerValidation = registerValidation;
-        _loginValidation = loginValidation;
         _bloomFilter = bloomFilter;
         _authRepository = authRepository;
         _iJwtService = jwtService;
@@ -38,7 +32,7 @@ public class AuthService : IAuthService
             var existingUser = await _authRepository.GetUserByIdentifierAsync(registerDTO.Email);
             if (existingUser != null)
             {
-                throw new UnauthorizedAccessException("Invalid credentials.");
+                throw new InvalidOperationException("Email already registered.");
             }
         }
         if (await _bloomFilter.IsUsernameRegistered(registerDTO.Username))
@@ -46,7 +40,7 @@ public class AuthService : IAuthService
             var existingUser = await _authRepository.GetUserByIdentifierAsync(registerDTO.Username);
             if (existingUser != null)
             {
-                throw new UnauthorizedAccessException("Invalid credentials.");
+                throw new InvalidOperationException("Username already taken.");
             }
         }
 
@@ -63,11 +57,12 @@ public class AuthService : IAuthService
         };
 
         bool isRegistered = await _authRepository.RegisterAsync(user);
-        if (isRegistered){
-            await _bloomFilter.AddEmailToBloomFilter(registerDTO.Email);
-            await _bloomFilter.AddUsernameToBloomFilter(registerDTO.Username);
+        if (!isRegistered){
+            return false;
         }    
         
+        await _bloomFilter.AddEmailToBloomFilter(registerDTO.Email);
+        await _bloomFilter.AddUsernameToBloomFilter(registerDTO.Username);
         return true;
     }
 
