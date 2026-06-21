@@ -6,6 +6,7 @@ using BE.Repositories.Implementations;
 using BE.Services.Interfaces;
 using BE.Services.Implementations;
 using StackExchange.Redis;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var redisConnection = builder.Configuration.GetConnectionString("RedisConnection");
@@ -22,7 +23,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddControllers();
 
+// Validator
+builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
 builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
 
 // Scoped repositories
