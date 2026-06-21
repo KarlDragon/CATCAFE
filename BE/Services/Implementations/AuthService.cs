@@ -32,16 +32,6 @@ public class AuthService : IAuthService
 
     public async Task<bool> Register(RegisterDTO registerDTO)
     {
-        // Clean data before validation
-        registerDTO.Email = registerDTO.Email.Trim().ToLower();
-        registerDTO.Username = registerDTO.Username.Trim().ToLower();
-
-        var validationResult = await _registerValidation.ValidateAsync(registerDTO);
-        if (!validationResult.IsValid)
-        {
-            throw new ValidationException(validationResult.Errors);
-        }
-
         // Check Bloom filter for email and username
         if (await _bloomFilter.IsEmailRegistered(registerDTO.Email))
         {
@@ -83,13 +73,6 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDTO> Login(LoginDTO loginDTO)
     {
-        loginDTO.EmailOrUsername = loginDTO.EmailOrUsername.Trim().ToLower();
-        var validationResult = await _loginValidation.ValidateAsync(loginDTO);
-        if (!validationResult.IsValid)
-        {
-            throw new ValidationException(validationResult.Errors);
-        }
-        
         var user = await _authRepository.GetUserByIdentifierAsync(loginDTO.EmailOrUsername);
         if (user == null)
         {
