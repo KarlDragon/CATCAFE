@@ -33,6 +33,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 // Scoped services
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRegistrationFilterService, RegistrationFilterService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 
