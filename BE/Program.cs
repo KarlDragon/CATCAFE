@@ -5,6 +5,7 @@ using BE.Repositories.Interfaces;
 using BE.Repositories.Implementations;
 using BE.Services.Interfaces;
 using BE.Services.Implementations;
+using BE.Middleware;
 using StackExchange.Redis;
 using FluentValidation.AspNetCore;
 
@@ -40,5 +41,5 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 var app = builder.Build();
 app.UseHttpsRedirection();
 app.UseAuthorization();
-
+app.UseMiddleware<ExceptionMiddleware>();
 app.Run();
