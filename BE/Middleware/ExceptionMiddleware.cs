@@ -1,15 +1,15 @@
 namespace BE.Middleware;
 using System.Text.Json;
 using System.Net;
-using System.Net.Mime;
+using Microsoft.Extensions.Logging;
 
 public class ExceptionMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger _logger;
+    private readonly ILogger<ExceptionMiddleware> _logger;
 
     public ExceptionMiddleware(RequestDelegate requestDelegate,
-                                ILogger logger)
+                                ILogger<ExceptionMiddleware> logger)
     {
         _next = requestDelegate;
         _logger = logger;
