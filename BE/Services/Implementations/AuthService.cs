@@ -71,10 +71,12 @@ public class AuthService : IAuthService
         var user = await _authRepository.GetUserByIdentifierAsync(loginDTO.EmailOrUsername);
         if (user == null)
         {
-            throw new UnauthorizedAccessException("User not found");
+            _logger.LogInformation( "User not found: {userName}", loginDTO.EmailOrUsername);
+            throw new UnauthorizedAccessException();
         }
         if (!BCrypt.Net.BCrypt.Verify(loginDTO.Password, user.PasswordHash))
         {
+            _logger.LogInformation( " Wrong password: {userName}", loginDTO.EmailOrUsername );
             throw new UnauthorizedAccessException("Invalid password");
         }
 
