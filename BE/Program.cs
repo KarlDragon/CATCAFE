@@ -41,7 +41,7 @@ builder.Services.AddScoped<IRegistrationFilterService, RegistrationFilterService
 builder.Services.AddScoped<IJwtService, JwtService>();
 
 var app = builder.Build();
-app.UseHttpsRedirection();
-app.UseAuthorization();
+
 app.UseMiddleware<ExceptionMiddleware>();
+app.MapControllers();
 app.Run();
