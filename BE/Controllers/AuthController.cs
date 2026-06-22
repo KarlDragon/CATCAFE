@@ -1,7 +1,6 @@
 ﻿namespace BE.Controllers;
 using BE.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using BE.Models;
 using BE.DTOs;
 
 [ApiController]
