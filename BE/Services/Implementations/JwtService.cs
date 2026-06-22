@@ -69,15 +69,27 @@ public class JwtService : IJwtService
     {
         var refreshToken = await _authRepository.GetRefreshTokenAsync(userID);
 
-        if ( refreshToken == null) return false;
-        if ( refreshToken.Expires <= DateTime.UtcNow) return false;
+        if ( refreshToken == null)
+        {
+            _logger.LogInformation(" There's no refreshtoken with this user: {user}", userID);
+            return false;
+        }
+        if ( refreshToken.Expires <= DateTime.UtcNow)
+        { 
+            _logger.LogInformation(" This users' {user} token is expired", userID);
+            return false;
+        }
 
         
         // get both token byte
         byte[] refreshTokenByte = Convert.FromHexString(refreshToken.Token);
         byte[] clientRefreshTokenbyte = SHA256.HashData(Encoding.UTF8.GetBytes(rawRefreshToken));
 
-        if (!CryptographicOperations.FixedTimeEquals(refreshTokenByte, clientRefreshTokenbyte)) return false;
+        if (!CryptographicOperations.FixedTimeEquals(refreshTokenByte, clientRefreshTokenbyte))
+        { 
+            _logger.LogWarning("UserId: {user} is right but wrong refresh token, pls check this request!", userID);
+            return false;
+        }
 
         return true;
     }
