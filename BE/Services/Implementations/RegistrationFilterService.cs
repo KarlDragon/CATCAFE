@@ -19,25 +19,25 @@ public class RegistrationFilterService : IRegistrationFilterService
             _redisDatabase.Execute("BF.RESERVE", UsernameBloomFilterKey, 0.01, 1000000);
         }
     }
-    public Task<bool> IsEmailRegistered(string email)
+    public async Task<bool> IsEmailRegistered(string email)
     {
-        return Task.FromResult(_redisDatabase.ExecuteAsync("BF.EXISTS", EmailBloomFilterKey, email).ToString() == "1");
+        var result = await _redisDatabase.ExecuteAsync("BF.EXISTS", EmailBloomFilterKey, email);
+        return result.ToString() == "1";
     }
 
-    public Task<bool> IsUsernameRegistered(string username)
+    public async Task<bool> IsUsernameRegistered(string username)
     {
-        return Task.FromResult(_redisDatabase.ExecuteAsync("BF.EXISTS", UsernameBloomFilterKey, username).ToString() == "1");
+        var result = await _redisDatabase.ExecuteAsync("BF.EXISTS", UsernameBloomFilterKey, username);
+        return result.ToString() == "1";
     }
 
-    public Task AddEmailToBloomFilter(string email)
+    public async Task AddEmailToBloomFilter(string email)
     {
-        _redisDatabase.ExecuteAsync("BF.ADD", EmailBloomFilterKey, email);
-        return Task.CompletedTask;
+        await _redisDatabase.ExecuteAsync("BF.ADD", EmailBloomFilterKey, email);
     }
 
-    public Task AddUsernameToBloomFilter(string username)
+    public async Task AddUsernameToBloomFilter(string username)
     {
-        _redisDatabase.ExecuteAsync("BF.ADD", UsernameBloomFilterKey, username);
-        return Task.CompletedTask;
+        await _redisDatabase.ExecuteAsync("BF.ADD", UsernameBloomFilterKey, username);
     }
 }
