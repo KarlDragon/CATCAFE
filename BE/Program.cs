@@ -15,7 +15,9 @@ if (string.IsNullOrEmpty(redisConnection))
 {
     throw new Exception("Redis connection string is not configured.");
 }
-var redis = ConnectionMultiplexer.Connect(redisConnection);
+var redisConfig = StackExchange.Redis.ConfigurationOptions.Parse(redisConnection);
+redisConfig.AbortOnConnectFail = false;
+var redis = ConnectionMultiplexer.Connect(redisConfig);
 var ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // Add dbcontext to the services container
