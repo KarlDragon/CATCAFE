@@ -7,8 +7,8 @@ public class LoginValidator : AbstractValidator<LoginDTO>
     {
         RuleFor(x => x.EmailOrUsername)
             .NotEmpty().WithMessage("Email hoặc Username không được để trống.")
-            .Length(3, 20).WithMessage("Email hoặc Username phải từ 3 đến 20 ký tự.")
-            .Matches(@"^(^[a-zA-Z0-9_]{3,20}$|^[^@\s]+@[^@\s]+\.[^@\s]+$)$")
+            .Length(3, 50).WithMessage("Email hoặc Username phải từ 3 đến 50 ký tự.")
+            .Matches(@"^(^[a-zA-Z0-9_]{3,50}$|^[^@\s]+@[^@\s]+\.[^@\s]+$)$")
             .WithMessage("Email hoặc Username không hợp lệ.");
 
         RuleFor(x => x.Password)
