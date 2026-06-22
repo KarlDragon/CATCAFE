@@ -2,6 +2,7 @@ namespace BE.Services.Implementations;
 using BE.Models;
 using BE.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -14,8 +15,8 @@ public class JwtService : IJwtService
 {
     private readonly IConfiguration _config;
     private readonly IAuthRepository _authRepository;
-    private readonly ILogger _logger;
-    public JwtService( IConfiguration configuration, IAuthRepository authRepository, ILogger logger)
+    private readonly ILogger<JwtService> _logger;
+    public JwtService( IConfiguration configuration, IAuthRepository authRepository, ILogger<JwtService> logger)
     {
         _config = configuration;
         _authRepository = authRepository;
