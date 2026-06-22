@@ -1,21 +1,21 @@
 namespace BE.Services.Implementations;
-using FluentValidation;
 using BE.Repositories.Interfaces;
 using BE.Services.Interfaces;
 using BE.Models;
 using BE.DTOs;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Logging;
 public class AuthService : IAuthService
 {
     private readonly IRegistrationFilterService _bloomFilter;
     private readonly IAuthRepository _authRepository;
     private readonly IJwtService _iJwtService;
-    private readonly ILogger _logger;
+    private readonly ILogger<AuthService> _logger;
     public AuthService(IRegistrationFilterService bloomFilter, 
                         IAuthRepository authRepository,
                         IJwtService jwtService,
-                        ILogger logger
+                        ILogger<AuthService> logger
                         )
     {
         _bloomFilter = bloomFilter;
