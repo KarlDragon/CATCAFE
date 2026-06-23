@@ -43,7 +43,7 @@ public class JwtService : IJwtService
         {
             new Claim(ClaimTypes.NameIdentifier, users.Id.ToString()),
             new Claim(ClaimTypes.Name, users.Username),
-            new Claim(ClaimTypes.Role, users.Role)
+            new Claim(ClaimTypes.Role, users.Role.ToString())
         };
         
         var durationMinutes = int.TryParse(jwtSettings["DurationInMinutes"], out var minutes)

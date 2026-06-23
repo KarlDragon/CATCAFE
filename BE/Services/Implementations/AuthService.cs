@@ -55,7 +55,7 @@ public class AuthService : IAuthService
             Username = registerDTO.Username,
             Email = registerDTO.Email,
             PasswordHash = hashedPassword,
-            Role = registerDTO.Role,
+            Role = Enum.Parse<Users.UserRole>(registerDTO.Role, ignoreCase: true),
             Name = registerDTO.Name
         };
 
@@ -105,7 +105,7 @@ public class AuthService : IAuthService
             RefreshToken = refreshToken,
             Username = user.Username,
             Email = user.Email,
-            Role = user.Role,
+            Role = user.Role.ToString(),
             Name = user.Name
         };
     }
