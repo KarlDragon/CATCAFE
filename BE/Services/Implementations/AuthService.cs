@@ -9,17 +9,20 @@ using Microsoft.Extensions.Logging;
 public class AuthService : IAuthService
 {
     private readonly IRegistrationFilterService _bloomFilter;
-    private readonly IAuthRepository _authRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IJwtService _iJwtService;
     private readonly ILogger<AuthService> _logger;
     public AuthService(IRegistrationFilterService bloomFilter, 
-                        IAuthRepository authRepository,
+                        IUserRepository userRepository,
+                        IRefreshTokenRepository refreshTokenRepository,
                         IJwtService jwtService,
                         ILogger<AuthService> logger
                         )
     {
         _bloomFilter = bloomFilter;
-        _authRepository = authRepository;
+        _userRepository = userRepository;
+        _refreshTokenRepository = refreshTokenRepository;
         _iJwtService = jwtService;
         _logger = logger;
     }
@@ -29,7 +32,7 @@ public class AuthService : IAuthService
         // Check Bloom filter for email and username
         if (await _bloomFilter.IsEmailRegistered(registerDTO.Email))
         {
-            var existingUser = await _authRepository.GetUserByIdentifierAsync(registerDTO.Email);
+            var existingUser = await _userRepository.GetUserByIdentifierAsync(registerDTO.Email);
             if (existingUser != null)
             {
                 throw new InvalidOperationException("Email already registered.");
@@ -37,7 +40,7 @@ public class AuthService : IAuthService
         }
         if (await _bloomFilter.IsUsernameRegistered(registerDTO.Username))
         {
-            var existingUser = await _authRepository.GetUserByIdentifierAsync(registerDTO.Username);
+            var existingUser = await _userRepository.GetUserByIdentifierAsync(registerDTO.Username);
             if (existingUser != null)
             {
                 throw new InvalidOperationException("Username already taken.");
@@ -56,7 +59,7 @@ public class AuthService : IAuthService
             Name = registerDTO.Name
         };
 
-        bool isRegistered = await _authRepository.RegisterAsync(user);
+        bool isRegistered = await _userRepository.RegisterAsync(user);
         if (!isRegistered){
             return false;
         }    
@@ -68,7 +71,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDTO> Login(LoginDTO loginDTO)
     {
-        var user = await _authRepository.GetUserByIdentifierAsync(loginDTO.EmailOrUsername);
+        var user = await _userRepository.GetUserByIdentifierAsync(loginDTO.EmailOrUsername);
         if (user == null)
         {
             _logger.LogInformation( "User not found: {userName}", loginDTO.EmailOrUsername);
@@ -81,7 +84,7 @@ public class AuthService : IAuthService
         }
 
         // Delete old refresh token when login
-        await _authRepository.DeleteRefreshTokenAsync(user.Id);
+        await _refreshTokenRepository.DeleteRefreshTokenAsync(user.Id);
         //temp jwt token and refreshToken will be created anyways
         //refresh token is only generated if user log out or it's expired
         var token = _iJwtService.GenerateToken(user);
@@ -95,7 +98,7 @@ public class AuthService : IAuthService
             Expires = DateTime.UtcNow.AddDays(30),
             UserID = user.Id
         };
-        await _authRepository.CreateRefreshTokenAsync(storedRefreshToken);
+        await _refreshTokenRepository.CreateRefreshTokenAsync(storedRefreshToken);
 
         return new AuthResponseDTO{
             Token = token,
@@ -111,7 +114,7 @@ public class AuthService : IAuthService
     {
         if (await _iJwtService.ValidateRefreshTokenAsync(refreshDTO.UserId, refreshDTO.RefreshToken))
         {
-            var user = await _authRepository.GetUserById(refreshDTO.UserId);
+            var user = await _userRepository.GetUserById(refreshDTO.UserId);
             if ( user == null)
             {
                 _logger.LogWarning(" User don't exist ");
