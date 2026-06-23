@@ -38,13 +38,16 @@ public class TableRepository : ITableRepository
 
     public async Task<bool> BookTableAsync ( Table table )
     {
-        _context.Tables.Update(table);
-        var result = await _context.SaveChangesAsync();
+        var result = await _context.Tables
+        .Where(tb => tb.TableID == table.TableID && tb.UserID == null) 
+        .ExecuteUpdateAsync(set => set
+            .SetProperty(tb => tb.UserID, table.UserID)
+            .SetProperty(tb => tb.BookedTime, table.BookedTime));
 
         return result > 0;
     }
 
-    public async Task<bool> ClearTable( int tableId )
+    public async Task<bool> ClearTableAsync( int tableId )
     {
         var result = await _context.Tables.Where( tb => tb.TableID == tableId)
                                           .ExecuteUpdateAsync( set => set.SetProperty( tb => tb.UserID, (int?)null)
@@ -53,14 +56,14 @@ public class TableRepository : ITableRepository
         return result > 0;
     }
 
-    public async Task<IEnumerable<Table>> GetAllTablesAsync()
+    public async Task<IEnumerable<Table>> GetAllTablesAsync(CancellationToken cancellationToken)
     {
-        return await _context.Tables.AsNoTracking().ToListAsync();
+        return await _context.Tables.AsNoTracking().ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<Table>> GetUserTablesAsync( int userId )
+    public async Task<IEnumerable<Table>> GetUserTablesAsync( int userId, CancellationToken cancellationToken )
     {
-        return await _context.Tables.Where( tb => tb.UserID == userId ).AsNoTracking().ToListAsync();
+        return await _context.Tables.Where( tb => tb.UserID == userId ).AsNoTracking().ToListAsync(cancellationToken);
     }
 
     public async Task<Table?> GetTableByIdAsync( int tableId)

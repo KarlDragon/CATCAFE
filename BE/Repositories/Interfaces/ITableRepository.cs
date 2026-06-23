@@ -8,14 +8,15 @@ public interface ITableRepository
 
     Task<bool> RemoveTableAsync( int tableId );
 
-    Task<bool> BookTableAsync ( Table table );
+    // Change UserId + BookedTime where UserId is Null
+    Task<bool> BookTableAsync( Table table );
 
     // Clear booking informations ( UserId + BookedTime)
-    Task<bool> ClearTable( int tableId );
+    Task<bool> ClearTableAsync( int tableId );
 
-    Task<IEnumerable<Table>> GetAllTablesAsync();
+    Task<IEnumerable<Table>> GetAllTablesAsync(CancellationToken cancellationToken);
 
-    Task<IEnumerable<Table>> GetUserTablesAsync( int userId );
+    Task<IEnumerable<Table>> GetUserTablesAsync( int userId, CancellationToken cancellationToken );
 
     Task<Table?> GetTableByIdAsync( int tableId );
 
