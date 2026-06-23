@@ -14,13 +14,18 @@ using System.Security.Cryptography;
 public class JwtService : IJwtService
 {
     private readonly IConfiguration _config;
-    private readonly IAuthRepository _authRepository;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly IUserRepository _userRepository;
     private readonly ILogger<JwtService> _logger;
-    public JwtService( IConfiguration configuration, IAuthRepository authRepository, ILogger<JwtService> logger)
+    public JwtService(  IConfiguration configuration, 
+                        IRefreshTokenRepository refreshTokenRepository, 
+                        ILogger<JwtService> logger,
+                        IUserRepository userRepository)
     {
         _config = configuration;
-        _authRepository = authRepository;
+        _refreshTokenRepository = refreshTokenRepository;
         _logger = logger;
+        _userRepository = userRepository;
     }
 
     public string GenerateToken(Users users)
@@ -67,7 +72,7 @@ public class JwtService : IJwtService
 
     public async Task<bool> ValidateRefreshTokenAsync(int userID, string rawRefreshToken)
     {
-        var refreshToken = await _authRepository.GetRefreshTokenAsync(userID);
+        var refreshToken = await _refreshTokenRepository.GetRefreshTokenAsync(userID);
 
         if ( refreshToken == null)
         {
@@ -134,7 +139,7 @@ public class JwtService : IJwtService
                 return false;
             }
 
-            var user = await _authRepository.GetUserById(userId);
+            var user = await _userRepository.GetUserById(userId);
             if (user == null)
             {
                 return false;
