@@ -26,26 +26,5 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<BookingDetail>()
             .HasKey(bd => new { bd.BookingID, bd.FoodDrinkID });
-
-        // It's FK and Navigation Property baby
-        modelBuilder.Entity<BookingCat>()
-            .HasOne<Booking>()
-            .WithMany(b => b.BookingCats)
-            .HasForeignKey(bc => bc.BookingID);
-
-        modelBuilder.Entity<BookingCat>()
-            .HasOne<Cat>()
-            .WithMany()
-            .HasForeignKey(bc => bc.CatID);
-
-        modelBuilder.Entity<BookingDetail>()
-            .HasOne<Booking>()
-            .WithMany(b => b.BookingDetails)
-            .HasForeignKey(bd => bd.BookingID);
-
-        modelBuilder.Entity<BookingDetail>()
-            .HasOne<FoodDrink>()
-            .WithMany()
-            .HasForeignKey(bd => bd.FoodDrinkID);
     }
 }
