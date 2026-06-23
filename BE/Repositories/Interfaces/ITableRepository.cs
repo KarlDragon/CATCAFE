@@ -1,5 +1,5 @@
 namespace BE.Repositories.Interfaces;
-
+using BE.Models;
 public interface ITableRepository
 {
     // Add more tables based on the amount created previously.
@@ -13,4 +13,5 @@ public interface ITableRepository
     // Clear booking informations
     Task<bool> ClearTable( int tableId );
 
+    Task<IEnumerable<Table>> GetTablesAsync();
 }
