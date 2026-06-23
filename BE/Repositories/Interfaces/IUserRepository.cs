@@ -1,0 +1,12 @@
+namespace BE.Repositories.Interfaces;
+using BE.Models;
+public interface IUserRepository
+{
+    // Register a new user and return boolean indicating success or failure
+    Task<bool> RegisterAsync(Users user);
+
+    // Login a user by email or username and return the user object if found 
+    Task<Users?> GetUserByIdentifierAsync(string identifier);
+
+    public Task<Users?> GetUserById(int id);
+}
