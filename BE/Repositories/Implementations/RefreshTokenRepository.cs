@@ -13,7 +13,7 @@ public class RefreshTokenRepository : IRefreshTokenRepository
 
     public async Task<bool> DeleteRefreshTokenAsync(int userId)
     {
-        var refreshToken = await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.UserID == userId);
+        var refreshToken = await GetRefreshTokenAsync(userId);
         if (refreshToken == null) return false;
 
         _context.RefreshTokens.Remove(refreshToken);
