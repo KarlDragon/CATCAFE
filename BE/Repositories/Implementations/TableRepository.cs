@@ -12,7 +12,7 @@ public class TableRepository : ITableRepository
         _context = context;
     }
 
-    public async Task<bool> CreateTablesAsync( Table table )
+    public async Task<bool> CreateTableAsync( Table table )
     {
         _context.Tables.Add(table);
         var affectedRow = await _context.SaveChangesAsync();
