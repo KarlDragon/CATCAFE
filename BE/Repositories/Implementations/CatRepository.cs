@@ -22,9 +22,6 @@ public class CatRepository : ICatRepository
 
     public async Task<bool> RemoveCatAsync( int catId )
     {
-        var cat = await _context.Cats.FindAsync(catId);
-        if (cat == null) return false;
-
         return await _context.Cats
         .Where(c => c.CatID == catId)
         .ExecuteDeleteAsync() > 0;
@@ -42,7 +39,7 @@ public class CatRepository : ICatRepository
         var affectedRow = await _context.SaveChangesAsync();
         return affectedRow > 0;
     }
-    
+
     public async Task<IEnumerable<Cat>> GetAllCatsAsync( CancellationToken cancellationToken )
     {
         return await _context.Cats.AsNoTracking().ToListAsync(cancellationToken);

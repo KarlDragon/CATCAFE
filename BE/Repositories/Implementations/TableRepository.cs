@@ -22,9 +22,6 @@ public class TableRepository : ITableRepository
 
     public async Task<bool> RemoveTableAsync( int tableId )
     {
-        var table = await _context.Tables.FindAsync(tableId);
-        if ( table == null ) return false;
-        
         return await _context.Tables
         .Where(t => t.TableID == tableId)
         .ExecuteDeleteAsync() > 0;
