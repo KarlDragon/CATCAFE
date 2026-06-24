@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 public class TableRepository : ITableRepository
 {
     private readonly AppDbContext _context;
-    private readonly Logger<TableRepository> _logger;
+    private readonly ILogger<TableRepository> _logger;
 
     public TableRepository(AppDbContext context, Logger<TableRepository> logger)
     {
