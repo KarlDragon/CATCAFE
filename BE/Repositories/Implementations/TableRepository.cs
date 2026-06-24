@@ -7,12 +7,10 @@ using Microsoft.EntityFrameworkCore;
 public class TableRepository : ITableRepository
 {
     private readonly AppDbContext _context;
-    private readonly ILogger<TableRepository> _logger;
 
-    public TableRepository(AppDbContext context, ILogger<TableRepository> logger)
+    public TableRepository(AppDbContext context)
     {
         _context = context;
-        _logger = logger;
     }
 
     public async Task<bool> CreateTableAsync( Table table )
