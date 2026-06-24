@@ -1,6 +1,7 @@
 namespace BE.Repositories.Implementations;
 using BE.Repositories.Interfaces;
 using BE.Models;
+using BE.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 public class CatRepository : ICatRepository
@@ -21,16 +22,27 @@ public class CatRepository : ICatRepository
 
     public async Task<bool> RemoveCatAsync( int catId )
     {
-        var cat = await GetCatByIdAsync(catId);
-        if (cat != null)
-        {
-            _context.Cats.Remove(cat);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-        return false;
+        var cat = await _context.Cats.FindAsync(catId);
+        if (cat == null) return false;
+
+        return await _context.Cats
+        .Where(c => c.CatID == catId)
+        .ExecuteDeleteAsync() > 0;
     }
 
+    public async Task<bool> UpdateCatAsync( UpdateCatDTO updateCatDTO)
+    {
+        var cat = await _context.Cats.FindAsync( updateCatDTO.CatID );
+        if ( cat == null ) return false;
+
+        cat.CatName = updateCatDTO.CatName ?? cat.CatName;
+        cat.Breed = updateCatDTO.Breed ?? cat.Breed;
+        cat.Status = updateCatDTO.Status ?? cat.Status;
+
+        var affectedRow = await _context.SaveChangesAsync();
+        return affectedRow > 0;
+    }
+    
     public async Task<IEnumerable<Cat>> GetAllCatsAsync( CancellationToken cancellationToken )
     {
         return await _context.Cats.AsNoTracking().ToListAsync(cancellationToken);
