@@ -9,7 +9,7 @@ public class TableRepository : ITableRepository
     private readonly AppDbContext _context;
     private readonly ILogger<TableRepository> _logger;
 
-    public TableRepository(AppDbContext context, Logger<TableRepository> logger)
+    public TableRepository(AppDbContext context, ILogger<TableRepository> logger)
     {
         _context = context;
         _logger = logger;
@@ -24,14 +24,18 @@ public class TableRepository : ITableRepository
 
     public async Task<bool> RemoveTableAsync( int tableId )
     {
-        var table = await GetTableByIdAsync(tableId);
-        _context.Tables.Remove(table);
-        return await _context.SaveChangesAsync() > 0;
+        var table = await _context.Tables.FindAsync(tableId);
+        if ( table == null ) return false;
+        
+        return await _context.Tables
+        .Where(t => t.TableID == tableId)
+        .ExecuteDeleteAsync() > 0;
     }
 
     public async Task<bool> UpdateTableAsync( UpdateTableDTO updateTableDTO)
     {
-        var table = await GetTableByIdAsync(updateTableDTO.TableID);
+        var table = await _context.Tables.FindAsync(updateTableDTO.TableID);
+        if ( table == null ) return false;
 
         table.TableName   = updateTableDTO.TableName ?? table.TableName;
         table.SeatAmount = updateTableDTO.SeatAmount ?? table.SeatAmount;
@@ -44,14 +48,8 @@ public class TableRepository : ITableRepository
         return await _context.Tables.AsNoTracking().ToListAsync(cancellationToken);
     }
 
-    public async Task<Table> GetTableByIdAsync( int tableId )
+    public async Task<Table?> GetTableByIdAsync( int tableId )
     {
-        var table = await _context.Tables.FirstOrDefaultAsync(tb => tb.TableID == tableId);
-        if ( table == null)
-        {
-            _logger.LogInformation("Table's not existed {tableID}", tableId);
-            throw new UnauthorizedAccessException();
-        }
-        return table;
+        return await _context.Tables.FirstOrDefaultAsync(tb => tb.TableID == tableId);
     } 
 }
