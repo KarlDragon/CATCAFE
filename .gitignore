@@ -26,3 +26,6 @@ Thumbs.db
 # POSTMAN IGNORES
 **/postman/
 **/.postman/
+
+# TEST IGNORES
+**/BE.Tests/
