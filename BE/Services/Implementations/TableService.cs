@@ -3,15 +3,15 @@ using BE.Services.Interfaces;
 using BE.Models;
 using BE.DTOs;
 using BE.Repositories.Interfaces;
-using BE.Repositories.Implementations;
 using System.Data;
+using System.Threading.Tasks;
 
 public class TableService : ITableService
 {
-    private readonly TableRepository _tableRepository;
+    private readonly ITableRepository _tableRepository;
     private readonly ILogger _logger;
 
-    public TableService( TableRepository tableRepository, ILogger logger)
+    public TableService( ITableRepository tableRepository, ILogger logger)
     {
         _tableRepository = tableRepository;
         _logger = logger;
@@ -19,23 +19,22 @@ public class TableService : ITableService
 
     public async Task<bool> CreateTableAsync( Table table )
     {
+        table.TableName = table.TableName.Trim();
         var duplicated = await _tableRepository.IsDuplicateName(table.TableName);
         if (duplicated)
         {
             throw new DuplicateNameException(" Trùng tên bàn ");
         }
-
-        var newTable = new Table
-        {
-            TableName = table.TableName.Trim(),
-            SeatAmount = table.SeatAmount
-        };
-        return true;
+        return await _tableRepository.CreateTableAsync(table);
     }
 
-    public bool RemoveTable( int tableId)
+    public async Task RemoveTableAsync( int tableId )
     {
-        return true;
+        var result = await _tableRepository.RemoveTableAsync(tableId);
+        if (!result)
+        {
+            throw new Exception($"Can't remove table {tableId}");
+        }
     }
     public bool UpdateTable( UpdateTableDTO updateTableDTO)
     {
