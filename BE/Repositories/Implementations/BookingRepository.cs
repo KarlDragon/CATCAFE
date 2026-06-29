@@ -1,5 +1,7 @@
 namespace BE.Repositories.Implementations;
 using BE.Repositories.Interfaces;
+using BE.Models;
+using Microsoft.EntityFrameworkCore;
 
 public class BookingRepository : IBookingRepository
 {
@@ -9,4 +11,46 @@ public class BookingRepository : IBookingRepository
     {
         _context = context;
     }
+
+    public async Task<bool> CreateBookingAsync( Booking booking )
+    {
+        var newBooking = new Booking
+        {
+            TableID = booking.TableID,
+            UserID = booking.UserID,
+            BookedTime = booking.BookedTime,
+            EndTime = booking.EndTime,
+            Status = BookingStatus.Pending,
+
+            BookingCats = booking.BookingCats.Select( c => new BookingCat { CatID = c.CatID }).ToList(),
+            BookingDetails = booking.BookingDetails.Select( d => new BookingDetail { 
+                                                            FoodDrinkID = d.FoodDrinkID, 
+                                                            Quantity = d.Quantity, 
+                                                            PriceAtBooking = d.PriceAtBooking}).ToList()
+
+        };
+
+        _context.Bookings.Add(newBooking);
+
+        var affectedRow = await _context.SaveChangesAsync();
+        return affectedRow > 0;
+    }
+
+    public async Task<bool> ChangeBookingStatusAsync(int bookingId, BookingStatus bookingStatus)
+    {
+        var booking = await _context.Bookings.FindAsync(bookingId);
+        if (booking == null) return false;
+        booking.Status = bookingStatus;
+        var affected = await _context.SaveChangesAsync();
+        return affected > 0;
+    }
+
+    public async Task<IEnumerable<Booking>> GetBookingsAsync()
+    {
+        return await _context.Bookings
+            .Include(b => b.BookingCats)
+            .Include(b => b.BookingDetails)
+            .ToListAsync();
+    }
+
 }
