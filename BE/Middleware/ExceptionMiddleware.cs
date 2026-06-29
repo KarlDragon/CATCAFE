@@ -2,6 +2,7 @@ namespace BE.Middleware;
 using System.Text.Json;
 using System.Net;
 using Microsoft.Extensions.Logging;
+using BE.Exceptions;
 
 public class ExceptionMiddleware
 {
@@ -45,6 +46,14 @@ public class ExceptionMiddleware
             case UnauthorizedAccessException:
                 statusCode = HttpStatusCode.Unauthorized;
                 message = " Invalid credentials ";
+                break;
+            case NotFoundException:
+                statusCode = HttpStatusCode.NotFound;
+                message = " Not found ";
+                break;
+            case DuplicateNameException:
+                statusCode = HttpStatusCode.Conflict;
+                message = " Duplicate name";
                 break;
         }
 
