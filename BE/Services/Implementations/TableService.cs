@@ -14,15 +14,21 @@ public class TableService : ITableService
         _tableRepository = tableRepository;
 }
 
-    public async Task<bool> CreateTableAsync( Table table )
+    public async Task<bool> CreateTableAsync( CreateTableDTO createTableDTO )
     {
-        table.TableName = table.TableName.Trim();
-        var duplicated = await _tableRepository.IsDuplicateName(table.TableName);
+        createTableDTO.TableName = createTableDTO.TableName.Trim();
+        var duplicated = await _tableRepository.IsDuplicateName(createTableDTO.TableName);
         if (duplicated)
         {
             throw new Exception(" Trùng tên bàn ");
         }
-        return await _tableRepository.CreateTableAsync(table);
+
+        var newTable = new Table
+        {
+            TableName = createTableDTO.TableName,
+            SeatAmount = createTableDTO.SeatAmount
+        };
+        return await _tableRepository.CreateTableAsync(newTable);
     }
 
     public async Task RemoveTableAsync( int tableId )
