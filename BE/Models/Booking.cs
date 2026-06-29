@@ -2,6 +2,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 namespace BE.Models;
 
+public enum BookingStatus { Pending, Confirmed, Cancelled, Completed }
+
 public class Booking
 {
     [Key]
@@ -11,7 +13,6 @@ public class Booking
     public int UserID { get; set; }   
     public DateTime BookedTime { get; set; } 
     public DateTime EndTime { get; set; }
-    public enum BookingStatus { Pending, Confirmed, Cancelled, Completed }
     public BookingStatus Status { get; set; }
 
     // Navigation Property
