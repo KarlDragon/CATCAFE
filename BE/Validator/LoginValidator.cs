@@ -14,8 +14,10 @@ public class LoginValidator : AbstractValidator<LoginDTO>
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password không được để trống.")
             .MinimumLength(8).WithMessage("Password phải có ít nhất 8 ký tự.")
-            .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$")
-            .WithMessage("Password không hợp lệ.");
+            .Matches(@"[A-Z]").WithMessage("Password phải chứa ít nhất 1 chữ cái viết hoa.")
+            .Matches(@"[a-z]").WithMessage("Password phải chứa ít nhất 1 chữ cái viết thường.")
+            .Matches(@"[0-9]").WithMessage("Password phải chứa ít nhất 1 chữ số.")
+            .Matches(@"[@$!%*?&]").WithMessage("Password phải chứa ít nhất 1 ký tự đặc biệt.");
     }
 
     protected override bool PreValidate(ValidationContext<LoginDTO> context, ValidationResult result)
