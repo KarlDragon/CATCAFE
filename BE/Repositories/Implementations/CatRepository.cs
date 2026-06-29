@@ -35,7 +35,7 @@ public class CatRepository : ICatRepository
         cat.CatName = updateCatDTO.CatName ?? cat.CatName;
         cat.Breed = updateCatDTO.Breed ?? cat.Breed;
         cat.Status = updateCatDTO.Status ?? cat.Status;
-
+        cat.Description = updateCatDTO.Description ?? cat.Description;
         var affectedRow = await _context.SaveChangesAsync();
         return affectedRow > 0;
     }
