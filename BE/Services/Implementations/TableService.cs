@@ -4,6 +4,7 @@ using BE.Models;
 using BE.DTOs;
 using BE.Repositories.Interfaces;
 using System.Threading.Tasks;
+using BE.Exceptions;
 
 public class TableService : ITableService
 {
@@ -20,7 +21,7 @@ public class TableService : ITableService
         var duplicated = await _tableRepository.IsDuplicateName(createTableDTO.TableName);
         if (duplicated)
         {
-            throw new Exception(" Trùng tên bàn ");
+            throw new DuplicateNameException(" Trùng tên bàn ");
         }
 
         var newTable = new Table
@@ -36,7 +37,7 @@ public class TableService : ITableService
         var result = await _tableRepository.RemoveTableAsync(tableId);
         if (!result)
         {
-            throw new Exception($"Không tìm thấy bàn {tableId} để xóa.");
+            throw new NotFoundException($"Không tìm thấy bàn {tableId} để xóa.");
         }
     }
     public async Task<bool> UpdateTableAsync( UpdateTableDTO updateTableDTO)
