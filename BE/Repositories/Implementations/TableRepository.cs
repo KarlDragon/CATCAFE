@@ -43,8 +43,8 @@ public class TableRepository : ITableRepository
         return await _context.Tables.AsNoTracking().ToListAsync(cancellationToken);
     }
 
-    public async Task<Table?> GetTableByIdAsync( int tableId )
+    public async Task<bool> IsDuplicateName( string tableName )
     {
-        return await _context.Tables.FirstOrDefaultAsync(tb => tb.TableID == tableId);
+        return await _context.Tables.AnyAsync(tb => tb.TableName == tableName);
     } 
 }

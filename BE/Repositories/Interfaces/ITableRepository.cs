@@ -11,5 +11,5 @@ public interface ITableRepository
 
     Task<IEnumerable<Table>> GetAllTablesAsync(CancellationToken cancellationToken);
 
-    Task<Table?> GetTableByIdAsync( int tableId );
+    Task<bool> IsDuplicateName( string tableName );
 }
