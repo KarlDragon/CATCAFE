@@ -45,9 +45,8 @@ public class CatRepository : ICatRepository
         return await _context.Cats.AsNoTracking().ToListAsync(cancellationToken);
     }
 
-    public async Task<Cat?> GetCatByIdAsync( int catId )
+    public async Task<bool> IsDuplicateName( string catName )
     {
-        return await _context.Cats.FirstOrDefaultAsync(c => c.CatID == catId);
+        return await _context.Cats.AnyAsync(c => c.CatName == catName);
     }
-
 }

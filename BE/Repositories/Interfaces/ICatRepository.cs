@@ -11,5 +11,5 @@ public interface ICatRepository
 
     Task<IEnumerable<Cat>> GetAllCatsAsync(CancellationToken cancellationToken);
 
-    Task<Cat?> GetCatByIdAsync( int catId );
+    Task<bool> IsDuplicateName( string catName );
 }
