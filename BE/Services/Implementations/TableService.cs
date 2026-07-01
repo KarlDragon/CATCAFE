@@ -17,18 +17,18 @@ public class TableService : ITableService
 
     public async Task<bool> CreateTableAsync( CreateTableDTO createTableDTO )
     {
-        createTableDTO.TableName = createTableDTO.TableName.Trim();
-        var duplicated = await _tableRepository.IsDuplicateName(createTableDTO.TableName);
+        var newTable = new Table
+        {
+            TableName = createTableDTO.TableName.Trim(),
+            SeatAmount = createTableDTO.SeatAmount
+        };
+
+        var duplicated = await _tableRepository.IsDuplicateName(newTable.TableName);
         if (duplicated)
         {
             throw new DuplicateNameException(" Trùng tên bàn ");
         }
-
-        var newTable = new Table
-        {
-            TableName = createTableDTO.TableName,
-            SeatAmount = createTableDTO.SeatAmount
-        };
+        
         return await _tableRepository.CreateTableAsync(newTable);
     }
 
