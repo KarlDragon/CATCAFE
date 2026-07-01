@@ -4,9 +4,9 @@ using BE.DTOs;
 
 public interface ICatService
 {
-    Task<bool> CreateCatAsync( Cat cat );
+    Task<bool> CreateCatAsync( CreateCatDTO createCatDTO );
 
-    Task<bool> RemoveCatAsync( int catId );
+    Task RemoveCatAsync( int catId );
 
     Task<bool> UpdateCatAsync( UpdateCatDTO updateCatDTO );
 
