@@ -48,4 +48,9 @@ public class CatService : ICatService
         if (updateCatDTO.Description != null) updateCatDTO.Description = updateCatDTO.Description?.Trim();
         return await _catRepository.UpdateCatAsync(updateCatDTO);
     }
+
+    public async Task<IEnumerable<Cat>> GetAllCatsAsync(CancellationToken cancellationToken)
+    {
+        return await _catRepository.GetAllCatsAsync(cancellationToken);
+    }
 }
