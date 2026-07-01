@@ -45,9 +45,9 @@ public class FoodDrinkRepository : IFoodDrinkRepository
         return await _context.FoodDrinks.AsNoTracking().ToListAsync(cancellationToken);
     }
 
-    public async Task<FoodDrink?> GetFoodDrinkByIdAsync( int foodDrinkId )
+    public async Task<bool> IsDuplicateName( string foodDrinkName )
     {
-        return await _context.FoodDrinks.FirstOrDefaultAsync(fd => fd.FoodDrinkID == foodDrinkId);
+        return await _context.FoodDrinks.AnyAsync(fd => fd.Name == foodDrinkName);
     }
 
 }

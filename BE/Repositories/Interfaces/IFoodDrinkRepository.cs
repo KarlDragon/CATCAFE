@@ -11,5 +11,5 @@ public interface IFoodDrinkRepository
 
     Task<IEnumerable<FoodDrink>> GetAllFoodDrinksAsync(CancellationToken cancellationToken);
 
-    Task<FoodDrink?> GetFoodDrinkByIdAsync( int FoodDrinkId );
+    Task<bool> IsDuplicateName( string foodDrinkName );
 }
