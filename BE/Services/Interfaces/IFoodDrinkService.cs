@@ -4,7 +4,7 @@ using BE.DTOs;
 
 public interface IFoodDrinkService
 {
-    Task<bool> CreateFoodDrinkAsync( FoodDrink foodDrink );
+    Task<bool> CreateFoodDrinkAsync( CreateFoodDrinkDTO createFoodDrinkDto );
 
     Task RemoveFoodDrinkAsync( int foodDrinkId );
 
