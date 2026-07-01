@@ -1,6 +1,6 @@
 using FluentValidation;
-using BE.Models;
-public class CreateTableValidator : AbstractValidator<Table>
+using BE.DTOs;
+public class CreateTableValidator : AbstractValidator<CreateTableDTO>
 {
     public CreateTableValidator()
     {
