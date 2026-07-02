@@ -69,7 +69,7 @@ builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
 
 // Scoped repositories
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<ICatRepository, CatRepository>();
 builder.Services.AddScoped<IFoodDrinkRepository, FoodDrinkRepository>();

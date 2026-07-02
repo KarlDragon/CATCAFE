@@ -9,19 +9,19 @@ using Microsoft.Extensions.Logging;
 public class AuthService : IAuthService
 {
     private readonly IRegistrationFilterService _bloomFilter;
-    private readonly IUserRepository _userRepository;
+    private readonly IAuthRepository _authRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IJwtService _iJwtService;
     private readonly ILogger<AuthService> _logger;
     public AuthService(IRegistrationFilterService bloomFilter, 
-                        IUserRepository userRepository,
+                        IAuthRepository authRepository,
                         IRefreshTokenRepository refreshTokenRepository,
                         IJwtService jwtService,
                         ILogger<AuthService> logger
                         )
     {
         _bloomFilter = bloomFilter;
-        _userRepository = userRepository;
+        _authRepository = authRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _iJwtService = jwtService;
         _logger = logger;
@@ -32,7 +32,7 @@ public class AuthService : IAuthService
         // Check Bloom filter for email and username
         if (await _bloomFilter.IsEmailRegistered(registerDTO.Email))
         {
-            var existingUser = await _userRepository.GetUserByIdentifierAsync(registerDTO.Email);
+            var existingUser = await _authRepository.GetUserByIdentifierAsync(registerDTO.Email);
             if (existingUser != null)
             {
                 throw new InvalidOperationException("Email already registered.");
@@ -40,7 +40,7 @@ public class AuthService : IAuthService
         }
         if (await _bloomFilter.IsUsernameRegistered(registerDTO.Username))
         {
-            var existingUser = await _userRepository.GetUserByIdentifierAsync(registerDTO.Username);
+            var existingUser = await _authRepository.GetUserByIdentifierAsync(registerDTO.Username);
             if (existingUser != null)
             {
                 throw new InvalidOperationException("Username already taken.");
@@ -59,7 +59,7 @@ public class AuthService : IAuthService
             Name = registerDTO.Name
         };
 
-        bool isRegistered = await _userRepository.RegisterAsync(user);
+        bool isRegistered = await _authRepository.RegisterAsync(user);
         if (!isRegistered){
             return false;
         }    
@@ -71,7 +71,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDTO> Login(LoginDTO loginDTO)
     {
-        var user = await _userRepository.GetUserByIdentifierAsync(loginDTO.EmailOrUsername);
+        var user = await _authRepository.GetUserByIdentifierAsync(loginDTO.EmailOrUsername);
         if (user == null)
         {
             _logger.LogInformation( "User not found: {userName}", loginDTO.EmailOrUsername);
@@ -114,7 +114,7 @@ public class AuthService : IAuthService
     {
         if (await _iJwtService.ValidateRefreshTokenAsync(refreshDTO.UserId, refreshDTO.RefreshToken))
         {
-            var user = await _userRepository.GetUserById(refreshDTO.UserId);
+            var user = await _authRepository.GetUserById(refreshDTO.UserId);
             if ( user == null)
             {
                 _logger.LogWarning(" User don't exist ");
