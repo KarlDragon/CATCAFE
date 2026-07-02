@@ -58,6 +58,24 @@ builder.Services.AddAuthentication(options =>
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>{
+                var authRepository = context.HttpContext.RequestServices.GetRequiredService<IAuthRepository>();
+                var userIdClaim = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    context.Fail("Invalid token: User ID claim is missing or invalid.");
+                    return;
+                }
+
+                var user = await authRepository.GetUserByIdAsync(userId);
+                if (user == null)
+                {
+                    context.Fail("Unauthorized: User not found.");
+                }
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
