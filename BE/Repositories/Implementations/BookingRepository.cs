@@ -33,12 +33,12 @@ public class BookingRepository : IBookingRepository
         return affected > 0;
     }
 
-    public async Task<IEnumerable<Booking>> GetBookingsAsync()
+    public async Task<IEnumerable<Booking>> GetAllBookingsAsync(CancellationToken cancellationToken)
     {
         return await _context.Bookings
             .Include(b => b.BookingCats)
             .Include(b => b.BookingDetails)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<bool> IsDuplicateBookingAsync(int tableId, DateTime bookedTime, DateTime endTime)
