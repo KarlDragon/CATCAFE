@@ -50,11 +50,10 @@ public class FoodDrinkRepository : IFoodDrinkRepository
         return await _context.FoodDrinks.AnyAsync(fd => fd.Name == foodDrinkName);
     }
 
-    public async Task<decimal> GetFoodDrinkPriceByIdAsync( int foodDrinkId )
+    public async Task<Dictionary<int, decimal>> GetFoodDrinkPriceByIdsAsync( List<int> foodDrinkIds )
     {
-        var foodDrink = await _context.FoodDrinks.FindAsync(foodDrinkId);
-        if (foodDrink == null) throw new ArgumentException($"FoodDrink with ID {foodDrinkId} not found.");
-        return foodDrink.Price;
+        var foodDrinks = await _context.FoodDrinks.Where(fd => foodDrinkIds.Contains(fd.FoodDrinkID)).ToListAsync();
+        return foodDrinks.ToDictionary(fd => fd.FoodDrinkID, fd => fd.Price);
     }
 
 }

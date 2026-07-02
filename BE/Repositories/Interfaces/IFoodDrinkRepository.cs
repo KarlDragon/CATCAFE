@@ -13,5 +13,5 @@ public interface IFoodDrinkRepository
 
     Task<bool> IsDuplicateName( string foodDrinkName );
 
-    Task<decimal> GetFoodDrinkPriceByIdAsync( int foodDrinkId );
+    Task<Dictionary<int, decimal>> GetFoodDrinkPriceByIdsAsync( List<int> foodDrinkIds );
 }
