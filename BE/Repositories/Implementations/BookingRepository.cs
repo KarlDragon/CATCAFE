@@ -1,4 +1,5 @@
 namespace BE.Repositories.Implementations;
+using System;
 using BE.Repositories.Interfaces;
 using BE.Models;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,10 @@ public class BookingRepository : IBookingRepository
 
     public async Task<bool> CreateBookingAsync( Booking booking )
     {
+        if (booking == null) throw new ArgumentNullException(nameof(booking));
+        if (booking.BookingCats == null) throw new ArgumentNullException(nameof(booking.BookingCats));
+        if (booking.BookingDetails == null) throw new ArgumentNullException(nameof(booking.BookingDetails));
+
         _context.Bookings.Add(booking);
         var affectedRow = await _context.SaveChangesAsync();
         return affectedRow > 0;
