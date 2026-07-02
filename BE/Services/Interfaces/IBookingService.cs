@@ -1,10 +1,11 @@
 namespace BE.Services.Interfaces;
 using BE.Models;
+using BE.DTOs;
 public interface IBookingService
 {
-    Task<bool> CreateBookingAsync( Booking booking );
+    Task CreateBookingAsync( CreateBookingDTO createBookingDTO );
 
-    Task<bool> ChangeBookingStatusAsync( int bookingId, BookingStatus bookingStatus );
+    Task ChangeBookingStatusAsync( int bookingId, BookingStatus bookingStatus );
 
     Task<IEnumerable<Booking>> GetBookingsAsync();
 }
