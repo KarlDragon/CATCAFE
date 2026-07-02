@@ -8,10 +8,6 @@ public class CreateBookingValidator : AbstractValidator<CreateBookingDTO>
             .NotEmpty().WithMessage("Không được để trống.")
             .GreaterThan(0).WithMessage("ID bàn phải lớn hơn 0.");
 
-        RuleFor(x => x.UserID)
-            .NotEmpty().WithMessage("Không được để trống.")
-            .GreaterThan(0).WithMessage("ID người dùng phải lớn hơn 0.");
-
         RuleFor(x => x.BookedTime)
             .NotEmpty().WithMessage("Không được để trống.")
             .GreaterThan(DateTime.Now).WithMessage("Thời gian đặt phải lớn hơn thời gian hiện tại.");
