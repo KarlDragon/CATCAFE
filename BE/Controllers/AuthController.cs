@@ -29,6 +29,10 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<AuthResponseDTO>> Login([FromBody] LoginDTO dto)
     {
         AuthResponseDTO loginResponse = await _authService.Login(dto);
+        if (loginResponse == null)
+        {
+            return Unauthorized(new { message = "Invalid credentials." });
+        }
         return Ok(loginResponse);
     }
 
@@ -40,11 +44,11 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(new { message = "Invalid or expired refresh token." });
         }
-        return Ok(new { token });
+        return Ok(token);
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout([FromBody] LogoutDTO dto)
+    public async Task<IActionResult> Logout([FromBody] RefreshDTO dto)
     {
         await _authService.Logout(dto);
         return Ok(new { message = "Logged out successfully." });
