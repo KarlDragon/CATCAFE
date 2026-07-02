@@ -1,5 +1,10 @@
 namespace BE.Models;
 
+public enum UserRole
+{
+    Owner, Staff, Customer
+}
+
 public class Users
 {
     public int Id { get; set; }
@@ -9,11 +14,6 @@ public class Users
     public UserRole Role { get; set; } = UserRole.Customer;
     public string Name { get; set; } = "";
 
-    public enum UserRole
-    {
-        Owner,
-        Staff,
-        Customer
-    }
+
 }
 
