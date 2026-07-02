@@ -15,17 +15,14 @@ public class JwtService : IJwtService
 {
     private readonly IConfiguration _config;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
-    private readonly IUserRepository _userRepository;
     private readonly ILogger<JwtService> _logger;
     public JwtService(  IConfiguration configuration, 
                         IRefreshTokenRepository refreshTokenRepository, 
-                        ILogger<JwtService> logger,
-                        IUserRepository userRepository)
+                        ILogger<JwtService> logger)
     {
         _config = configuration;
         _refreshTokenRepository = refreshTokenRepository;
         _logger = logger;
-        _userRepository = userRepository;
     }
 
     public string GenerateToken(Users users)
