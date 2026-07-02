@@ -17,7 +17,7 @@ public class AuthRepository : IAuthRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<Users?> GetUserById(int id)
+    public async Task<Users?> GetUserByIdAsync(int id)
     {
         return await _context.Users.FirstOrDefaultAsync( u => u.Id == id);
     }
