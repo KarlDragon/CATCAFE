@@ -60,8 +60,8 @@ public class BookingService : IBookingService
 
     }
 
-    public async Task<IEnumerable<Booking>> GetBookingsAsync()
+    public async Task<IEnumerable<Booking>> GetAllBookingsAsync(CancellationToken cancellationToken)
     {
-        return await _bookingRepository.GetBookingsAsync();
+        return await _bookingRepository.GetAllBookingsAsync(cancellationToken);
     }
 }
