@@ -130,16 +130,18 @@ public class AuthService : IAuthService
         }
 
     }
-    
-    public async Task Logout(RefreshDTO refreshDTO)
+
+    public async Task<bool> Logout(RefreshDTO refreshDTO)
     {
         if (await _iJwtService.ValidateRefreshTokenAsync(refreshDTO.UserId, refreshDTO.RefreshToken))
         {
             await _refreshTokenRepository.DeleteRefreshTokenAsync(refreshDTO.UserId);
+            return true;
         }
         else
         {
             _logger.LogWarning("RefreshToken invalid");
+            return false;
         }
     }
 }

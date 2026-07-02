@@ -50,7 +50,11 @@ public class AuthController : ControllerBase
     [HttpPost("logout")]
     public async Task<IActionResult> Logout([FromBody] RefreshDTO dto)
     {
-        await _authService.Logout(dto);
+        bool logoutSuccess = await _authService.Logout(dto);
+        if (!logoutSuccess)
+        {
+            return Unauthorized(new { message = "Invalid refresh token." });
+        }
         return Ok(new { message = "Logged out successfully." });
     }
 }
