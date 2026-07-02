@@ -37,7 +37,7 @@ public class TableController : ControllerBase
     }   
 
     [HttpPut]
-    [Authorize(Roles = "Owner, Staff")]
+    [Authorize(Roles = "Owner,Staff")]
     public async Task<IActionResult> UpdateTable([FromBody] UpdateTableDTO updateTableDTO)
     {
         bool isUpdated = await _tableService.UpdateTableAsync(updateTableDTO);

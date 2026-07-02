@@ -37,7 +37,7 @@ public class CatController : ControllerBase
     }
 
     [HttpPut]
-    [Authorize(Roles = "Owner, Staff")]
+    [Authorize(Roles = "Owner,Staff")]
     public async Task<IActionResult> UpdateCat([FromBody] UpdateCatDTO updateCatDTO)
     {
         bool isUpdated = await _catService.UpdateCatAsync(updateCatDTO);

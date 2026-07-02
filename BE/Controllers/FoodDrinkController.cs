@@ -37,7 +37,7 @@ public class FoodDrinkController : ControllerBase
     }   
 
     [HttpPut]
-    [Authorize(Roles = "Owner, Staff")]
+    [Authorize(Roles = "Owner,Staff")]
     public async Task<IActionResult> UpdateFoodDrink([FromBody] UpdateFoodDrinkDTO updateFoodDrinkDTO)
     {
         bool isUpdated = await _foodDrinkService.UpdateFoodDrinkAsync(updateFoodDrinkDTO);
