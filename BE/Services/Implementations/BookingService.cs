@@ -27,10 +27,10 @@ public class BookingService : IBookingService
             Status = BookingStatus.Pending,
 
             BookingCats = createBookingDTO.BookingCats.Select( c => new BookingCat { CatID = c.CatID }).ToList(),
-            BookingDetails = createBookingDTO.BookingDetails.Select( d => new BookingDetail { 
+            BookingDetails = [.. createBookingDTO.BookingDetails.Select( d => new BookingDetail { 
                                                             FoodDrinkID = d.FoodDrinkID, 
                                                             Quantity = d.Quantity, 
-                                                            PriceAtBooking = foodDrinkPrices.GetValueOrDefault(d.FoodDrinkID) }).ToList()
+                                                            PriceAtBooking = foodDrinkPrices.GetValueOrDefault(d.FoodDrinkID) })]
 
         };
 
