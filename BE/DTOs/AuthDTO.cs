@@ -22,3 +22,8 @@ public class RefreshDTO
     public string RefreshToken {get; set;} = "";
 
 }
+
+public class LogoutDTO
+{
+    public int UserId {get; set;}
+}
