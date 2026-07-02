@@ -42,4 +42,11 @@ public class AuthController : ControllerBase
         }
         return Ok(new { token });
     }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout([FromBody] LogoutDTO dto)
+    {
+        await _authService.Logout(dto);
+        return Ok(new { message = "Logged out successfully." });
+    }
 }
