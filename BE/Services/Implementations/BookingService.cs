@@ -26,7 +26,7 @@ public class BookingService : IBookingService
             EndTime = createBookingDTO.EndTime,
             Status = BookingStatus.Pending,
 
-            BookingCats = createBookingDTO.BookingCats.Select( c => new BookingCat { CatID = c.CatID }).ToList(),
+            BookingCats = [.. createBookingDTO.BookingCats.Select( c => new BookingCat { CatID = c.CatID })],
             BookingDetails = [.. createBookingDTO.BookingDetails.Select( d => new BookingDetail { 
                                                             FoodDrinkID = d.FoodDrinkID, 
                                                             Quantity = d.Quantity, 
