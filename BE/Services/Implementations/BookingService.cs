@@ -6,14 +6,18 @@ using BE.Repositories.Interfaces;
 public class BookingService : IBookingService
 {
     private readonly IBookingRepository _bookingRepository;
-
-    public BookingService(IBookingRepository bookingRepository)
+    private readonly IFoodDrinkRepository _foodDrinkRepository;
+    public BookingService(IBookingRepository bookingRepository, IFoodDrinkRepository foodDrinkRepository)
     {
         _bookingRepository = bookingRepository;
+        _foodDrinkRepository = foodDrinkRepository;
     }
 
-    public async Task CreateBookingAsync( CreateBookingDTO createBookingDTO)
+    public async Task CreateBookingAsync( CreateBookingDTO createBookingDTO )
     {
+        var foodDrinkIds = createBookingDTO.BookingDetails.Select(d => d.FoodDrinkID).Distinct().ToList();
+        var foodDrinkPrices = await _foodDrinkRepository.GetFoodDrinkPriceByIdsAsync(foodDrinkIds);
+
         var newBooking = new Booking
         {
             TableID = createBookingDTO.TableID,
@@ -26,7 +30,7 @@ public class BookingService : IBookingService
             BookingDetails = createBookingDTO.BookingDetails.Select( d => new BookingDetail { 
                                                             FoodDrinkID = d.FoodDrinkID, 
                                                             Quantity = d.Quantity, 
-                                                            PriceAtBooking = d.PriceAtBooking}).ToList()
+                                                            PriceAtBooking = foodDrinkPrices.GetValueOrDefault(d.FoodDrinkID) }).ToList()
 
         };
 
