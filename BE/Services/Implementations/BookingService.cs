@@ -3,6 +3,8 @@ using BE.DTOs;
 using BE.Models;
 using BE.Services.Interfaces;
 using BE.Repositories.Interfaces;
+using BE.Exceptions;
+
 public class BookingService : IBookingService
 {
     private readonly IBookingRepository _bookingRepository;
@@ -18,6 +20,11 @@ public class BookingService : IBookingService
         var foodDrinkIds = createBookingDTO.BookingDetails.Select(d => d.FoodDrinkID).Distinct().ToList();
         var foodDrinkPrices = await _foodDrinkRepository.GetFoodDrinkPriceByIdsAsync(foodDrinkIds);
 
+        var isDuplicate = await _bookingRepository.IsDuplicateBookingAsync(createBookingDTO.TableID, createBookingDTO.BookedTime, createBookingDTO.EndTime);
+        if (isDuplicate)
+        {
+            throw new DuplicateBookingException("The booking time overlaps with an existing booking for the same table.");
+        }
         var newBooking = new Booking
         {
             TableID = createBookingDTO.TableID,
@@ -38,7 +45,7 @@ public class BookingService : IBookingService
 
         if (!result)
         {
-            throw new Exception("Failed to create booking.");
+            throw new FailedToCreateException("Failed to create booking.");
         }
     }
 
@@ -48,7 +55,7 @@ public class BookingService : IBookingService
 
         if (!result)
         {
-            throw new Exception($"Failed to change booking status for booking ID {bookingId}.");
+            throw new NotFoundException($"Failed to change booking status for booking ID {bookingId}.");
         }
 
     }
