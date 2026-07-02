@@ -2,11 +2,11 @@ namespace BE.Repositories.Implementations;
 using BE.Repositories.Interfaces;
 using BE.Models;
 using Microsoft.EntityFrameworkCore;
-public class UserRepository : IUserRepository
+public class AuthRepository : IAuthRepository
 {
     private readonly AppDbContext _context;
 
-    public UserRepository( AppDbContext context)
+    public AuthRepository( AppDbContext context)
     {
         _context = context;
     }

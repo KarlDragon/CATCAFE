@@ -1,6 +1,6 @@
 namespace BE.Repositories.Interfaces;
 using BE.Models;
-public interface IUserRepository
+public interface IAuthRepository
 {
     // Register a new user and return boolean indicating success or failure
     Task<bool> RegisterAsync(Users user);
