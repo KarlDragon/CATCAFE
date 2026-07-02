@@ -14,24 +14,7 @@ public class BookingRepository : IBookingRepository
 
     public async Task<bool> CreateBookingAsync( Booking booking )
     {
-        var newBooking = new Booking
-        {
-            TableID = booking.TableID,
-            UserID = booking.UserID,
-            BookedTime = booking.BookedTime,
-            EndTime = booking.EndTime,
-            Status = BookingStatus.Pending,
-
-            BookingCats = booking.BookingCats.Select( c => new BookingCat { CatID = c.CatID }).ToList(),
-            BookingDetails = booking.BookingDetails.Select( d => new BookingDetail { 
-                                                            FoodDrinkID = d.FoodDrinkID, 
-                                                            Quantity = d.Quantity, 
-                                                            PriceAtBooking = d.PriceAtBooking}).ToList()
-
-        };
-
-        _context.Bookings.Add(newBooking);
-
+        _context.Bookings.Add(booking);
         var affectedRow = await _context.SaveChangesAsync();
         return affectedRow > 0;
     }

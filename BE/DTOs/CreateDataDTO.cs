@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
-
+using BE.Models;
 namespace BE.DTOs;
 
 public class CreateTableDTO
@@ -24,4 +24,15 @@ public class CreateFoodDrinkDTO
     [Column(TypeName = "decimal(18,2)")]
     public decimal Price {get; set;}
     public int Quantity {get; set;}
+}
+
+public class CreateBookingDTO
+{
+    public int TableID { get; set; }
+    public int UserID { get; set; }   
+    public DateTime BookedTime { get; set; } 
+    public DateTime EndTime { get; set; }
+    public BookingStatus Status { get; set; }
+    public ICollection<BookingCat> BookingCats { get; set; } = new List<BookingCat>();
+    public ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
 }
