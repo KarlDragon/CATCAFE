@@ -13,7 +13,7 @@ public class BookingService : IBookingService
         _foodDrinkRepository = foodDrinkRepository;
     }
 
-    public async Task CreateBookingAsync( CreateBookingDTO createBookingDTO )
+    public async Task CreateBookingAsync( CreateBookingDTO createBookingDTO, int userId )
     {
         var foodDrinkIds = createBookingDTO.BookingDetails.Select(d => d.FoodDrinkID).Distinct().ToList();
         var foodDrinkPrices = await _foodDrinkRepository.GetFoodDrinkPriceByIdsAsync(foodDrinkIds);
@@ -21,7 +21,7 @@ public class BookingService : IBookingService
         var newBooking = new Booking
         {
             TableID = createBookingDTO.TableID,
-            UserID = createBookingDTO.UserID,
+            UserID = userId,
             BookedTime = createBookingDTO.BookedTime,
             EndTime = createBookingDTO.EndTime,
             Status = BookingStatus.Pending,

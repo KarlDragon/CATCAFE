@@ -3,7 +3,7 @@ using BE.Models;
 using BE.DTOs;
 public interface IBookingService
 {
-    Task CreateBookingAsync( CreateBookingDTO createBookingDTO );
+    Task CreateBookingAsync( CreateBookingDTO createBookingDTO, int userId );
 
     Task ChangeBookingStatusAsync( int bookingId, BookingStatus bookingStatus );
 

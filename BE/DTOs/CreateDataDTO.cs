@@ -29,7 +29,6 @@ public class CreateFoodDrinkDTO
 public class CreateBookingDTO
 {
     public int TableID { get; set; }
-    public int UserID { get; set; }   
     public DateTime BookedTime { get; set; } 
     public DateTime EndTime { get; set; }
     public BookingStatus Status { get; set; }
