@@ -109,7 +109,7 @@ public class AuthService : IAuthService
     {
         if (await _iJwtService.ValidateRefreshTokenAsync(refreshDTO.UserId, refreshDTO.RefreshToken))
         {
-            var user = await _authRepository.GetUserById(refreshDTO.UserId);
+            var user = await _authRepository.GetUserByIdAsync(refreshDTO.UserId);
             if ( user == null)
             {
                 _logger.LogWarning(" User don't exist ");
