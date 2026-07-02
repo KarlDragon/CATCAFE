@@ -55,7 +55,7 @@ public class AuthService : IAuthService
             Username = registerDTO.Username,
             Email = registerDTO.Email,
             PasswordHash = hashedPassword,
-            Role = Enum.Parse<Users.UserRole>(registerDTO.Role, ignoreCase: true),
+            Role = UserRole.Customer, // Default role
             Name = registerDTO.Name
         };
 
