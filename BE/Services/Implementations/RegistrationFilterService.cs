@@ -8,7 +8,13 @@ public class RegistrationFilterService : IRegistrationFilterService
     private const string UsernameBloomFilterKey = "bf:users:usernames";
     public RegistrationFilterService(IConnectionMultiplexer redis)
     {
-        _redisDatabase = redis.GetDatabase();
+        try{
+            _redisDatabase = redis.GetDatabase();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Failed to connect to Redis. Please ensure that the Redis server is running and accessible.", ex);
+        }
 
         if (!_redisDatabase.KeyExists(EmailBloomFilterKey))
         {
