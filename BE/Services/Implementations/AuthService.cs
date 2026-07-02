@@ -27,7 +27,7 @@ public class AuthService : IAuthService
         _logger = logger;
     }
 
-    public async Task<bool> Register(RegisterDTO registerDTO)
+    public async Task Register(RegisterDTO registerDTO)
     {
         // Check Bloom filter for email and username
         if (await _bloomFilter.IsEmailRegistered(registerDTO.Email))
@@ -59,14 +59,10 @@ public class AuthService : IAuthService
             Name = registerDTO.Name
         };
 
-        bool isRegistered = await _authRepository.RegisterAsync(user);
-        if (!isRegistered){
-            return false;
-        }    
-        
+        await _authRepository.RegisterAsync(user);
+
         await _bloomFilter.AddEmailToBloomFilter(registerDTO.Email);
         await _bloomFilter.AddUsernameToBloomFilter(registerDTO.Username);
-        return true;
     }
 
     public async Task<AuthResponseDTO> Login(LoginDTO loginDTO)

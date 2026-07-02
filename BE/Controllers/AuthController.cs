@@ -17,11 +17,7 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDTO dto)
     {
-        bool registerSuccess = await _authService.Register(dto);
-        if (!registerSuccess)
-        {
-            return BadRequest(new { message = "Registration failed." });
-        }
+        await _authService.Register(dto);
         return Ok(new { message = "Registration successful." });
     }
 
