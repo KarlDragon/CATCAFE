@@ -41,4 +41,11 @@ public class BookingRepository : IBookingRepository
             .ToListAsync();
     }
 
+    public async Task<bool> IsDuplicateBookingAsync(int tableId, DateTime bookedTime, DateTime endTime)
+    {
+        return await _context.Bookings.AnyAsync(b => b.TableID == tableId &&
+                                                     b.Status != BookingStatus.Cancelled &&
+                                                     b.Status != BookingStatus.Completed && 
+                                                     b.BookedTime < endTime && b.EndTime > bookedTime);
+    }
 }

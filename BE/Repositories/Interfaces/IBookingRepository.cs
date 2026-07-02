@@ -7,4 +7,6 @@ public interface IBookingRepository
     Task<bool> ChangeBookingStatusAsync( int bookingId, BookingStatus bookingStatus );
 
     Task<IEnumerable<Booking>> GetBookingsAsync();
+
+    Task<bool> IsDuplicateBookingAsync( int tableId, DateTime bookedTime, DateTime endTime );
 }
