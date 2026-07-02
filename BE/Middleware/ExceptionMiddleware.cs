@@ -45,15 +45,15 @@ public class ExceptionMiddleware
                 break;
             case UnauthorizedAccessException:
                 statusCode = HttpStatusCode.Unauthorized;
-                message = " Invalid credentials ";
+                message = "Invalid credentials";
                 break;
             case NotFoundException:
                 statusCode = HttpStatusCode.NotFound;
-                message = " Not found ";
+                message = "Not found ";
                 break;
             case DuplicateNameException:
                 statusCode = HttpStatusCode.Conflict;
-                message = " Duplicate name";
+                message = "Duplicate name";
                 break;
             case DuplicateBookingException:
                 statusCode = HttpStatusCode.Conflict;
