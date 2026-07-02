@@ -130,4 +130,9 @@ public class AuthService : IAuthService
         }
 
     }
+    
+    public async Task Logout(LogoutDTO logoutDTO)
+    {
+        await _refreshTokenRepository.DeleteRefreshTokenAsync(logoutDTO.UserId);
+    }
 }
