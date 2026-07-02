@@ -32,8 +32,8 @@ public class CreateBookingDTO
     public DateTime BookedTime { get; set; } 
     public DateTime EndTime { get; set; }
     public BookingStatus Status { get; set; }
-    public ICollection<BookingCat> BookingCats { get; set; } = new List<BookingCat>();
-    public ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
+    public ICollection<CreateBookingCatDTO> BookingCats { get; set; } = new List<CreateBookingCatDTO>();
+    public ICollection<CreateBookingDetailDTO> BookingDetails { get; set; } = new List<CreateBookingDetailDTO>();
 }
 
 public class CreateBookingCatDTO
