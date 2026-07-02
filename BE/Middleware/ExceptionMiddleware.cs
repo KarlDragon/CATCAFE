@@ -55,6 +55,14 @@ public class ExceptionMiddleware
                 statusCode = HttpStatusCode.Conflict;
                 message = " Duplicate name";
                 break;
+            case DuplicateBookingException:
+                statusCode = HttpStatusCode.Conflict;
+                message = exception.Message;
+                break;
+            case FailedToCreateException:
+                statusCode = HttpStatusCode.InternalServerError;
+                message = "Internal server error";
+                break;
         }
 
         httpContext.Response.StatusCode = (int)statusCode;
