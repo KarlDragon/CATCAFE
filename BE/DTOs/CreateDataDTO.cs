@@ -36,3 +36,15 @@ public class CreateBookingDTO
     public ICollection<BookingCat> BookingCats { get; set; } = new List<BookingCat>();
     public ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
 }
+
+public class CreateBookingCatDTO
+{
+    public int CatID { get; set; }
+}
+
+public class CreateBookingDetailDTO
+{
+    public int FoodDrinkID { get; set; }
+    public int Quantity { get; set; }
+    public decimal PriceAtBooking { get; set; }
+}
