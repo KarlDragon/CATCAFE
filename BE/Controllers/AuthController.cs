@@ -25,10 +25,6 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<AuthResponseDTO>> Login([FromBody] LoginDTO dto)
     {
         AuthResponseDTO loginResponse = await _authService.Login(dto);
-        if (loginResponse == null)
-        {
-            return Unauthorized(new { message = "Invalid credentials." });
-        }
         return Ok(loginResponse);
     }
 
