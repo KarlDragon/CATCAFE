@@ -25,7 +25,7 @@ public class LoginValidator : AbstractValidator<LoginDTO>
         var dto = context.InstanceToValidate;
         if ( dto != null)
         {
-            if (!string.IsNullOrEmpty(dto.EmailOrUsername))
+            if (!string.IsNullOrWhiteSpace(dto.EmailOrUsername))
             {
                 dto.EmailOrUsername = dto.EmailOrUsername.Trim().ToLower();
             }

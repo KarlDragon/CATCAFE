@@ -35,11 +35,11 @@ public class RegisterValidator : AbstractValidator<RegisterDTO>
         var dto = context.InstanceToValidate;
         if ( dto != null)
         {
-            if (!string.IsNullOrEmpty(dto.Username))
+            if (!string.IsNullOrWhiteSpace(dto.Username))
             {
                 dto.Username = dto.Username.Trim().ToLower();
             }
-            if (!string.IsNullOrEmpty(dto.Email))
+            if (!string.IsNullOrWhiteSpace(dto.Email))
             {
                 dto.Email = dto.Email.Trim().ToLower();
             }
