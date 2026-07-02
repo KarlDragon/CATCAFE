@@ -3,6 +3,7 @@ using BE.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using BE.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -20,7 +21,7 @@ public class BookingController : ControllerBase
     [Authorize]
     public async Task<IActionResult> CreateBooking([FromBody] CreateBookingDTO createBookingDTO)
     {
-        var userId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
         await _bookingService.CreateBookingAsync(createBookingDTO, userId);
         return Ok(new { message = "Booking created successfully." });
     }
