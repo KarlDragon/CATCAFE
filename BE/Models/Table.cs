@@ -8,4 +8,5 @@ public class Table
     public int TableID {get; set;}
     public string TableName {get; set;} = "";
     public int SeatAmount {get; set;}
+    public bool IsActive { get; set; } = true;
 }

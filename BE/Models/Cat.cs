@@ -10,4 +10,5 @@ public class Cat
     public string Breed {get; set;} = "";
     public string Status {get; set;} = "";
     public string Description {get; set;} = "";
+    public bool IsActive { get; set; } = true;
 }
