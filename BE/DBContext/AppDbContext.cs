@@ -26,5 +26,23 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<BookingDetail>()
             .HasKey(bd => new { bd.BookingID, bd.FoodDrinkID });
+
+        modelBuilder.Entity<Cat>( entity =>
+        {
+            entity.HasIndex(c => c.CatName).IsUnique();
+        });
+        modelBuilder.Entity<FoodDrink>( entity =>
+        {
+            entity.HasIndex(fd => fd.Name).IsUnique();
+        });
+        modelBuilder.Entity<Table>( entity =>
+        {
+            entity.HasIndex(t => t.TableName).IsUnique();
+        });
+        modelBuilder.Entity<Users>( entity =>
+        {
+            entity.HasIndex(u => u.Username).IsUnique();
+            entity.HasIndex(u => u.Email).IsUnique();
+        });
     }
 }
