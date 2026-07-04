@@ -41,11 +41,13 @@ public class CatRepository : ICatRepository
 
     public async Task<IEnumerable<Cat>> GetAllCatsAsync( CancellationToken cancellationToken )
     {
-        return await _context.Cats.AsNoTracking().ToListAsync(cancellationToken);
+        return await _context.Cats.Where(c => c.IsActive)
+                                    .AsNoTracking()
+                                    .ToListAsync(cancellationToken);
     }
 
     public async Task<bool> IsDuplicateName( string catName )
     {
-        return await _context.Cats.AnyAsync(c => c.CatName == catName);
+        return await _context.Cats.AnyAsync(c => c.CatName == catName && c.IsActive);
     }
 }

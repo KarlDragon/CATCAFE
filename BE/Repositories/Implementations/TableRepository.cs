@@ -39,11 +39,13 @@ public class TableRepository : ITableRepository
     }
     public async Task<IEnumerable<Table>> GetAllTablesAsync( CancellationToken cancellationToken )
     {
-        return await _context.Tables.AsNoTracking().ToListAsync(cancellationToken);
+        return await _context.Tables.Where(t => t.IsActive)
+                                    .AsNoTracking()
+                                    .ToListAsync(cancellationToken);
     }
 
     public async Task<bool> IsDuplicateName( string tableName )
     {
-        return await _context.Tables.AnyAsync(tb => tb.TableName == tableName);
+        return await _context.Tables.AnyAsync(tb => tb.TableName == tableName && tb.IsActive);
     } 
 }
