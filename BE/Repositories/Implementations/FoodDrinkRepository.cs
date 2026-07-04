@@ -22,9 +22,8 @@ public class FoodDrinkRepository : IFoodDrinkRepository
 
     public async Task<bool> RemoveFoodDrinkAsync( int foodDrinkId )
     {
-        return await _context.FoodDrinks
-        .Where(fd => fd.FoodDrinkID == foodDrinkId)
-        .ExecuteDeleteAsync() > 0;
+        return await _context.FoodDrinks.Where(fd => fd.FoodDrinkID == foodDrinkId)
+                     .ExecuteUpdateAsync(fd => fd.SetProperty(fd => fd.IsActive, false)) > 0;
     }
 
     public async Task<bool> UpdateFoodDrinkAsync( UpdateFoodDrinkDTO updateFoodDrinkDTO)

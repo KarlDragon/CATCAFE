@@ -22,9 +22,8 @@ public class TableRepository : ITableRepository
 
     public async Task<bool> RemoveTableAsync( int tableId )
     {
-        return await _context.Tables
-        .Where(t => t.TableID == tableId)
-        .ExecuteDeleteAsync() > 0;
+        return await _context.Tables.Where(t => t.TableID == tableId)
+                     .ExecuteUpdateAsync(t => t.SetProperty(t => t.IsActive, false)) > 0;
     }
 
     public async Task<bool> UpdateTableAsync( UpdateTableDTO updateTableDTO)

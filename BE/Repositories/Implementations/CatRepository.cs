@@ -22,9 +22,8 @@ public class CatRepository : ICatRepository
 
     public async Task<bool> RemoveCatAsync( int catId )
     {
-        return await _context.Cats
-        .Where(c => c.CatID == catId)
-        .ExecuteDeleteAsync() > 0;
+        return await _context.Cats.Where(c => c.CatID == catId)
+                     .ExecuteUpdateAsync(c => c.SetProperty(c => c.IsActive, false)) > 0;
     }
 
     public async Task<bool> UpdateCatAsync( UpdateCatDTO updateCatDTO)
