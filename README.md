@@ -1,0 +1,1 @@
+Soft delete sẽ thay đổi isActive thành false, sẽ không còn hiệu lực cho các booking sau khi thực thi việc xóa, các booking trước đó vẫn sẽ tồn tại như cũ.
