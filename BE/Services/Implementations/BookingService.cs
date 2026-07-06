@@ -4,15 +4,18 @@ using BE.Models;
 using BE.Services.Interfaces;
 using BE.Repositories.Interfaces;
 using BE.Exceptions;
+using BE.Infrastructure.Queue;
 
 public class BookingService : IBookingService
 {
     private readonly IBookingRepository _bookingRepository;
     private readonly IFoodDrinkRepository _foodDrinkRepository;
-    public BookingService(IBookingRepository bookingRepository, IFoodDrinkRepository foodDrinkRepository)
+    private readonly IRequestQueue<BookingQueueRequest> _bookingQueue;
+    public BookingService(IBookingRepository bookingRepository, IFoodDrinkRepository foodDrinkRepository, IRequestQueue<BookingQueueRequest> bookingQueue)
     {
         _bookingRepository = bookingRepository;
         _foodDrinkRepository = foodDrinkRepository;
+        _bookingQueue = bookingQueue;
     }
 
     public async Task<BookingResult> CreateBookingInternalAsync( CreateBookingDTO createBookingDTO, int userId )
@@ -55,6 +58,18 @@ public class BookingService : IBookingService
         };
     }
 
+    public async Task<BookingResult> EnqueueBookingAsync( CreateBookingDTO createBookingDTO, int userId )
+    {
+        var request = new BookingQueueRequest
+        {
+            CreateBookingDTO = createBookingDTO,
+            UserId = userId,
+            CompletionSource = new TaskCompletionSource<BookingResult>(
+                TaskCreationOptions.RunContinuationsAsynchronously)
+        };
+        await _bookingQueue.EnqueueAsync(request);
+        return await request.CompletionSource.Task;
+    }
     public async Task ChangeBookingStatusAsync( int bookingId, BookingStatus bookingStatus )
     {
         var result = await _bookingRepository.ChangeBookingStatusAsync(bookingId, bookingStatus);

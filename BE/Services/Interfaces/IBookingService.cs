@@ -5,6 +5,8 @@ public interface IBookingService
 {
     Task<BookingResult> CreateBookingInternalAsync( CreateBookingDTO createBookingDTO, int userId );
 
+    Task<BookingResult> EnqueueBookingAsync( CreateBookingDTO createBookingDTO, int userId );
+
     Task ChangeBookingStatusAsync( int bookingId, BookingStatus bookingStatus );
 
     Task<IEnumerable<Booking>> GetAllBookingsAsync(CancellationToken cancellationToken);
