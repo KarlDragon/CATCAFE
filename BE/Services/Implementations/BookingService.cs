@@ -15,7 +15,7 @@ public class BookingService : IBookingService
         _foodDrinkRepository = foodDrinkRepository;
     }
 
-    public async Task CreateBookingAsync( CreateBookingDTO createBookingDTO, int userId )
+    public async Task<BookingResult> CreateBookingInternalAsync( CreateBookingDTO createBookingDTO, int userId )
     {
         var foodDrinkIds = createBookingDTO.BookingDetails.Select(d => d.FoodDrinkID).Distinct().ToList();
         var foodDrinkPrices = await _foodDrinkRepository.GetFoodDrinkPriceByIdsAsync(foodDrinkIds);
@@ -43,10 +43,16 @@ public class BookingService : IBookingService
 
         var result = await _bookingRepository.CreateBookingAsync(newBooking);
 
-        if (!result)
+        if (result == null)
         {
             throw new FailedToCreateException("Failed to create booking.");
         }
+
+        return new BookingResult
+        {
+            BookingId = result.BookingID,
+            Status = result.Status
+        };
     }
 
     public async Task ChangeBookingStatusAsync( int bookingId, BookingStatus bookingStatus )
