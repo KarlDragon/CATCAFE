@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using BE.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using BE.Exceptions;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -21,7 +22,7 @@ public class BookingController : ControllerBase
     [Authorize]
     public async Task<IActionResult> CreateBooking([FromBody] CreateBookingDTO createBookingDTO)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new NotFoundException("User ID not found"));
         await _bookingService.CreateBookingAsync(createBookingDTO, userId);
         return Ok(new { message = "Booking created successfully." });
     }
