@@ -13,15 +13,15 @@ public class BookingRepository : IBookingRepository
         _context = context;
     }
 
-    public async Task<bool> CreateBookingAsync( Booking booking )
+    public async Task<Booking> CreateBookingAsync( Booking booking )
     {
         if (booking == null) throw new ArgumentNullException(nameof(booking));
         if (booking.BookingCats == null) throw new ArgumentNullException(nameof(booking.BookingCats));
         if (booking.BookingDetails == null) throw new ArgumentNullException(nameof(booking.BookingDetails));
 
         _context.Bookings.Add(booking);
-        var affectedRow = await _context.SaveChangesAsync();
-        return affectedRow > 0;
+        await _context.SaveChangesAsync();
+        return booking;
     }
 
     public async Task<bool> ChangeBookingStatusAsync(int bookingId, BookingStatus bookingStatus)
