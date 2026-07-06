@@ -29,3 +29,6 @@ Thumbs.db
 
 # TEST IGNORES
 **/BE.Tests/
+
+# codefetch 
+**/codefetch/
