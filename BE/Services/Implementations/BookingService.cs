@@ -68,6 +68,10 @@ public class BookingService : IBookingService
                 TaskCreationOptions.RunContinuationsAsynchronously)
         };
         await _bookingQueue.EnqueueAsync(request);
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        cts.Token.Register(() => request.CompletionSource.TrySetCanceled());
+
         return await request.CompletionSource.Task;
     }
     public async Task ChangeBookingStatusAsync( int bookingId, BookingStatus bookingStatus )
