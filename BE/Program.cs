@@ -9,6 +9,7 @@ using BE.Repositories.Implementations;
 using BE.Services.Interfaces;
 using BE.Services.Implementations;
 using BE.Middleware;
+using BE.Infrastructure.Queue;
 using StackExchange.Redis;
 using FluentValidation.AspNetCore;
 
@@ -103,6 +104,9 @@ builder.Services.AddScoped<IFoodDrinkService, FoodDrinkService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<ITableService, TableService>();
 
+// Queue and hosted worker
+builder.Services.AddSingleton<IRequestQueue<BookingQueueRequest>>(_ => new RequestQueue<BookingQueueRequest>(capacity: 100));
+builder.Services.AddHostedService<BookingQueueWorker>();
 
 var app = builder.Build();
 
