@@ -9,6 +9,7 @@ using BE.Repositories.Implementations;
 using BE.Services.Interfaces;
 using BE.Services.Implementations;
 using BE.Middleware;
+using BE.Models;
 using BE.Infrastructure.Queue;
 using StackExchange.Redis;
 using FluentValidation.AspNetCore;
