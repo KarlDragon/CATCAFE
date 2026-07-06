@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using BE.Exceptions;
 using BE.Infrastructure.Queue;
+using BE.Models;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -28,13 +29,8 @@ public class BookingController : ControllerBase
     public async Task<IActionResult> CreateBooking([FromBody] CreateBookingDTO createBookingDTO)
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new NotFoundException("User ID not found"));
-        var request = new BookingQueueRequest
-        {
-            CreateBookingDTO = createBookingDTO,
-            UserId = userId
-        };
-        await _bookingQueue.EnqueueAsync(request);
-        return Ok(new { message = "Booking queued successfully." });
+        var bookingResult = await _bookingService.EnqueueBookingAsync(createBookingDTO, userId);
+        return Ok(new { message = "Booking queued successfully.", bookingId = bookingResult.BookingId, status = bookingResult.Status });
     }
 
     [HttpGet]

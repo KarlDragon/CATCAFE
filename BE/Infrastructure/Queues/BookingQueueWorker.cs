@@ -1,5 +1,6 @@
 namespace BE.Infrastructure.Queue;
 
+using BE.Models;
 using BE.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,12 +37,14 @@ public class BookingQueueWorker : BackgroundService
                 break;
             }
 
+            using var scope = _serviceProvider.CreateScope();
+            var bookingService = scope.ServiceProvider.GetRequiredService<IBookingService>();
+
             try
             {
                 _logger.LogInformation("Processing queued booking for user {UserId}.", request.UserId);
-                using var scope = _serviceProvider.CreateScope();
-                var bookingService = scope.ServiceProvider.GetRequiredService<IBookingService>();
-                await bookingService.CreateBookingAsync(request.CreateBookingDTO, request.UserId);
+                var result = await bookingService.CreateBookingInternalAsync(request.CreateBookingDTO, request.UserId);
+                request.CompletionSource.SetResult(result);
                 _logger.LogInformation("Queued booking processed for user {UserId}.", request.UserId);
             }
             catch (Exception ex)
@@ -49,6 +52,8 @@ public class BookingQueueWorker : BackgroundService
                 _logger.LogError(ex, "Failed to process queued booking for user {UserId}.", request.UserId);
                 // swallow exceptions so worker continues processing next items
 
+                // Set the exception on the TaskCompletionSource to propagate the error back to the caller
+                request.CompletionSource.SetException(ex);
             }
         }
 
