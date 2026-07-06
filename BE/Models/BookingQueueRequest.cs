@@ -5,5 +5,5 @@ public class BookingQueueRequest
 {
     public CreateBookingDTO CreateBookingDTO { get; set; } = null!;
     public int UserId { get; set; }
-    public TaskCompletionSource<bool> CompletionSource { get; set; } = new TaskCompletionSource<bool>();
+    public TaskCompletionSource<BookingResult> CompletionSource { get; set; } = new TaskCompletionSource<BookingResult>();
 }
