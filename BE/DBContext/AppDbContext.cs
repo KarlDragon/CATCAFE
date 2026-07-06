@@ -44,5 +44,18 @@ public class AppDbContext : DbContext
             entity.HasIndex(u => u.Username).IsUnique();
             entity.HasIndex(u => u.Email).IsUnique();
         });
+
+        // default value for IsDeleted column in Booking table
+        modelBuilder.Entity<Table>()
+        .Property(t => t.IsActive)
+        .HasDefaultValue(true);
+
+        modelBuilder.Entity<FoodDrink>()
+            .Property(f => f.IsActive)
+            .HasDefaultValue(true);
+
+        modelBuilder.Entity<Cat>()
+            .Property(c => c.IsActive)
+            .HasDefaultValue(true);
     }
 }

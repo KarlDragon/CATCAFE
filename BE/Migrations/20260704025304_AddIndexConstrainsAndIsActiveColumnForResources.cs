@@ -45,7 +45,7 @@ namespace BE.Migrations
                 table: "Tables",
                 type: "tinyint(1)",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: true);
 
             migrationBuilder.AlterColumn<string>(
                 name: "Name",
@@ -62,7 +62,7 @@ namespace BE.Migrations
                 table: "FoodDrinks",
                 type: "tinyint(1)",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: true);
 
             migrationBuilder.AlterColumn<string>(
                 name: "CatName",
@@ -79,7 +79,7 @@ namespace BE.Migrations
                 table: "Cats",
                 type: "tinyint(1)",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
