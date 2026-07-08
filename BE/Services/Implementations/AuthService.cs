@@ -6,6 +6,8 @@ using BE.DTOs;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using BE.Infrastructure.Queue;
+
 public class AuthService : IAuthService
 {
     private readonly IRegistrationFilterService _bloomFilter;
@@ -13,11 +15,13 @@ public class AuthService : IAuthService
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IJwtService _iJwtService;
     private readonly ILogger<AuthService> _logger;
+    private readonly IRequestQueue<MailJob> _mailQueue;
     public AuthService(IRegistrationFilterService bloomFilter, 
                         IAuthRepository authRepository,
                         IRefreshTokenRepository refreshTokenRepository,
                         IJwtService jwtService,
-                        ILogger<AuthService> logger
+                        ILogger<AuthService> logger,
+                        IRequestQueue<MailJob> mailQueue
                         )
     {
         _bloomFilter = bloomFilter;
@@ -25,6 +29,7 @@ public class AuthService : IAuthService
         _refreshTokenRepository = refreshTokenRepository;
         _iJwtService = jwtService;
         _logger = logger;
+        _mailQueue = mailQueue;
     }
 
     public async Task Register(RegisterDTO registerDTO)
@@ -60,6 +65,9 @@ public class AuthService : IAuthService
         };
 
         await _authRepository.RegisterAsync(user);
+
+        var job = new MailJob("WelcomeEmail", (svc, ct) => svc.SendWelcomeEmailAsync(user.Username, user.Email, ct));
+        await _mailQueue.EnqueueAsync(job, CancellationToken.None);
 
         await _bloomFilter.AddEmailToBloomFilter(registerDTO.Email);
         await _bloomFilter.AddUsernameToBloomFilter(registerDTO.Username);
