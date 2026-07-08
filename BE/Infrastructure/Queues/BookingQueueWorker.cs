@@ -4,23 +4,27 @@ using BE.Models;
 using BE.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using BE.Repositories.Interfaces;
 public class BookingQueueWorker : BackgroundService
 {
     private readonly IRequestQueue<BookingQueueRequest> _queue;
     private readonly IRequestQueue<MailJob> _mailQueue;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<BookingQueueWorker> _logger;
+    private readonly IAuthRepository _authRepository;
 
     public BookingQueueWorker(
         IRequestQueue<BookingQueueRequest> queue,
         IRequestQueue<MailJob> mailQueue,
         IServiceScopeFactory serviceScopeFactory,
-        ILogger<BookingQueueWorker> logger)
+        ILogger<BookingQueueWorker> logger,
+        IAuthRepository authRepository)
     {
         _queue = queue;
         _mailQueue = mailQueue;
         _scopeFactory = serviceScopeFactory;
         _logger = logger;
+        _authRepository = authRepository;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -37,15 +41,23 @@ public class BookingQueueWorker : BackgroundService
                 _logger.LogInformation("Processing queued booking for user {UserId}.", request.UserId);
                 var result = await bookingService.CreateBookingInternalAsync(request.CreateBookingDTO, request.UserId);
                 request.CompletionSource.TrySetResult(result);
-                var mailJob = new MailJob(
-                    "BookingConfirmation",
-                    (svc, ct) => svc.SendBookingConfirmationEmailAsync(
-                        request.UserId,
-                        result.BookingId,
-                        result.StartTime,
-                        result.EndTime,
-                        ct));
-                await _mailQueue.EnqueueAsync(mailJob, CancellationToken.None);
+
+                try
+                {
+                    var user = await _authRepository.GetUserByIdAsync(request.UserId);
+                    if (user != null)
+                    {
+                        var mailJob = new MailJob("BookingConfirmation", (svc, ct) =>
+                            svc.SendBookingConfirmationEmailAsync(user.Username, user.Email, result.BookingId,
+                                request.CreateBookingDTO.BookedTime, request.CreateBookingDTO.EndTime, ct));
+                        await _mailQueue.EnqueueAsync(mailJob, CancellationToken.None);
+                    }
+                }
+                catch (Exception mailEx)
+                {
+                    _logger.LogError(mailEx, "Failed to enqueue booking confirmation email for user {UserId}.", request.UserId);
+                }
+            
             }
             catch (Exception ex)
             {
