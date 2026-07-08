@@ -58,7 +58,7 @@ public class BookingService : IBookingService
         };
     }
 
-    public async Task<BookingResult> EnqueueBookingAsync( CreateBookingDTO createBookingDTO, int userId )
+    public async Task<BookingResult> EnqueueBookingAsync( CreateBookingDTO createBookingDTO, int userId, CancellationToken cancellationToken )
     {
         var request = new BookingQueueRequest
         {
@@ -67,7 +67,7 @@ public class BookingService : IBookingService
             CompletionSource = new TaskCompletionSource<BookingResult>(
                 TaskCreationOptions.RunContinuationsAsynchronously)
         };
-        await _bookingQueue.EnqueueAsync(request);
+        await _bookingQueue.EnqueueAsync(request, cancellationToken);
 
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
         cts.Token.Register(() => request.CompletionSource.TrySetCanceled());
