@@ -15,6 +15,12 @@ public class CreateBookingValidator : AbstractValidator<CreateBookingDTO>
         RuleFor(x => x.EndTime)
             .NotEmpty().WithMessage("Không được để trống.")
             .GreaterThan(x => x.BookedTime).WithMessage("Thời gian kết thúc phải lớn hơn thời gian đặt.");
+        
+        RuleFor(x => x.BookingCats)
+            .Must( list => list.Select(x => x.CatID).Distinct().Count() == list.Count()).WithMessage("Danh sách mèo không được có ID trùng nhau.");
+        
+        RuleFor(x => x.BookingDetails)
+            .Must( list => list.Select(x => x.FoodDrinkID).Distinct().Count() == list.Count()).WithMessage("Danh sách món ăn không được có ID trùng nhau.");
     }
     
 }
