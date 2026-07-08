@@ -5,5 +5,6 @@ namespace BE.Services.Interfaces
         Task SendEmailAsync(string toUserName, string toEmail, string subject, string body, CancellationToken cancellationToken = default);
         Task SendWelcomeEmailAsync(string toUserName, string toEmail, CancellationToken cancellationToken = default);
         Task SendBookingConfirmationEmailAsync(string toUserName, string toEmail, int bookingId, DateTime bookedTime, DateTime endTime, CancellationToken cancellationToken = default);
+        Task SendBookingStatusUpdateEmailAsync(string toUserName, string toEmail, int bookingId, string newStatus, CancellationToken cancellationToken = default);
     }
 }

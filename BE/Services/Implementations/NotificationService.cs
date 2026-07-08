@@ -98,4 +98,24 @@ public class NotificationService : INotificationService
         await SendEmailAsync(toUserName, toEmail, subject, body, cancellationToken);
     }
 
+    public async Task SendBookingStatusUpdateEmailAsync(string toUserName, string toEmail, int bookingId, string newStatus, CancellationToken cancellationToken = default)
+    {
+        var subject = "Cập nhật trạng thái đặt bàn tại Cat Cafe";
+        var body = $@"
+        Xin chào {toUserName},
+
+        Trạng thái đặt bàn của bạn đã được cập nhật. 
+        Thông tin đặt bàn của bạn như sau:
+        
+        Mã đặt bàn: {bookingId}
+        Trạng thái mới: {newStatus}
+        
+        Cảm ơn bạn đã sử dụng dịch vụ của Cat Cafe!
+        
+        Trân trọng,
+        Đội ngũ Cat Cafe
+        ";
+
+        await SendEmailAsync(toUserName, toEmail, subject, body, cancellationToken);
+    }
 }
