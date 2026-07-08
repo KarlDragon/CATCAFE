@@ -100,21 +100,59 @@ public class NotificationService : INotificationService
 
     public async Task SendBookingStatusUpdateEmailAsync(string toUserName, string toEmail, int bookingId, string newStatus, CancellationToken cancellationToken = default)
     {
-        var subject = "Cập nhật trạng thái đặt bàn tại Cat Cafe";
-        var body = $@"
-        Xin chào {toUserName},
+        var subject = string.Empty;
+        var body = string.Empty;
+        switch (newStatus.ToLower())
+        {
+            case "confirmed":
+                subject = "Đã xác nhận thanh toán đơn hàng tại Cat Cafe";
+                body = $@"
+                Xin chào {toUserName},
+                Cat Cafe xin thông báo rằng đơn hàng {bookingId} đã được xác nhận thanh toán thành công.
+                Chúng tôi mong được phục vụ bạn tại Cat Cafe!
+                Trân trọng,
+                Đội ngũ Cat Cafe
+                ";
+                break;
+            case "cancelled":
+                subject = "Đã hủy đơn hàng tại Cat Cafe";
+                body = $@"
+                Xin chào {toUserName},
+                Cat Cafe xin thông báo rằng đơn hàng {bookingId} đã được hủy.
+                Chúng tôi xin lỗi vì sự bất tiện này.
+                Trân trọng,
+                Đội ngũ Cat Cafe
+                ";
+                break;
+            case "completed":
+                subject = "Cảm ơn bạn đã sử dụng dịch vụ tại Cat Cafe";
+                body = $@"
+                Xin chào {toUserName},
+                Mã đơn hàng {bookingId}
+                Đơn hàng của bạn đã được hoàn tất.
 
-        Trạng thái đặt bàn của bạn đã được cập nhật. 
-        Thông tin đặt bàn của bạn như sau:
-        
-        Mã đặt bàn: {bookingId}
-        Trạng thái mới: {newStatus}
-        
-        Cảm ơn bạn đã sử dụng dịch vụ của Cat Cafe!
-        
-        Trân trọng,
-        Đội ngũ Cat Cafe
-        ";
+                Cảm ơn bạn đã sử dụng dịch vụ của Cat Cafe!
+                Trân trọng,
+                Đội ngũ Cat Cafe
+                ";
+                break;
+            default:
+                subject = "Cập nhật trạng thái đơn hàng tại Cat Cafe";
+                body = $@"
+                Xin chào {toUserName},
+                Cat Cafe xin thông báo rằng trạng thái đơn hàng của bạn đã được cập nhật.
+                Thông tin đơn hàng của bạn như sau:
+                
+                Mã đơn hàng: {bookingId}
+                Trạng thái mới: {newStatus}
+                
+                Cảm ơn bạn đã sử dụng dịch vụ của Cat Cafe!
+                
+                Trân trọng,
+                Đội ngũ Cat Cafe
+                ";
+                break;
+        }
 
         await SendEmailAsync(toUserName, toEmail, subject, body, cancellationToken);
     }
