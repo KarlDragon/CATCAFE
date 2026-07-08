@@ -21,10 +21,6 @@ public class RegisterValidator : AbstractValidator<RegisterDTO>
             .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$")
             .WithMessage("Password phải chứa ít nhất một chữ cái viết thường, một chữ cái viết hoa, một chữ số và một ký tự đặc biệt.");
 
-        RuleFor(x => x.Role)
-            .NotEmpty().WithMessage("Role không được để trống.")
-            .Must(role => role == "Owner" || role == "Staff" || role == "Customer").WithMessage("Role phải là 'Owner', 'Staff' hoặc 'Customer'.");
-        
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Name không được để trống.")
             .Length(3, 100).WithMessage("Name phải từ 3 đến 100 ký tự.");
