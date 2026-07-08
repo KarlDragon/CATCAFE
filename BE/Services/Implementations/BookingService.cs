@@ -23,6 +23,13 @@ public class BookingService : IBookingService
         var foodDrinkIds = createBookingDTO.BookingDetails.Select(d => d.FoodDrinkID).Distinct().ToList();
         var foodDrinkPrices = await _foodDrinkRepository.GetFoodDrinkPriceByIdsAsync(foodDrinkIds);
 
+        // Validate all requested food/drink IDs exist
+        var missingIds = foodDrinkIds.Where(id => !foodDrinkPrices.ContainsKey(id)).ToList();
+        if (missingIds.Any())
+        {
+            throw new NotFoundException($"The following FoodDrink IDs were not found or are inactive: {string.Join(", ", missingIds)}");
+        }
+
         var isDuplicate = await _bookingRepository.IsDuplicateBookingAsync(createBookingDTO.TableID, createBookingDTO.BookedTime, createBookingDTO.EndTime);
         if (isDuplicate)
         {
@@ -40,7 +47,7 @@ public class BookingService : IBookingService
             BookingDetails = [.. createBookingDTO.BookingDetails.Select( d => new BookingDetail { 
                                                             FoodDrinkID = d.FoodDrinkID, 
                                                             Quantity = d.Quantity, 
-                                                            PriceAtBooking = foodDrinkPrices.GetValueOrDefault(d.FoodDrinkID) })]
+                                                            PriceAtBooking = foodDrinkPrices[d.FoodDrinkID] })]
 
         };
 
