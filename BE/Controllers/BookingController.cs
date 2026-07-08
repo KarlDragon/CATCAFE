@@ -13,14 +13,12 @@ using BE.Models;
 
 public class BookingController : ControllerBase
 {
-    private readonly IRequestQueue<BookingQueueRequest> _bookingQueue;
     private readonly IBookingService _bookingService;
 
     public BookingController(
         IRequestQueue<BookingQueueRequest> bookingQueue,
         IBookingService bookingService)
     {
-        _bookingQueue = bookingQueue;
         _bookingService = bookingService;
     }
 
