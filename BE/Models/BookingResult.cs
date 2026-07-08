@@ -4,6 +4,4 @@ public class BookingResult
 {
     public int BookingId  { get; set; }
     public BookingStatus Status  { get; set; }
-    public DateTime StartTime { get; set; }
-    public DateTime EndTime { get; set; }
 }
