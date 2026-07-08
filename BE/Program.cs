@@ -8,6 +8,7 @@ using BE.Repositories.Interfaces;
 using BE.Repositories.Implementations;
 using BE.Services.Interfaces;
 using BE.Services.Implementations;
+using BE.Services.Extensions;
 using BE.Middleware;
 using BE.Models;
 using BE.Infrastructure.Queue;
@@ -98,7 +99,7 @@ builder.Services.AddScoped<ITableRepository, TableRepository>();
 
 // Scoped services
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IRegistrationFilterService, RegistrationFilterService>();
+builder.Services.AddRegistrationFilter();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<ICatService, CatService>();
 builder.Services.AddScoped<IFoodDrinkService, FoodDrinkService>();
