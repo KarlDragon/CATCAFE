@@ -104,10 +104,13 @@ builder.Services.AddScoped<ICatService, CatService>();
 builder.Services.AddScoped<IFoodDrinkService, FoodDrinkService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<ITableService, TableService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // Queue and hosted worker
 builder.Services.AddSingleton<IRequestQueue<BookingQueueRequest>>(_ => new RequestQueue<BookingQueueRequest>(capacity: 100));
+builder.Services.AddSingleton<IRequestQueue<MailJob>>(_ => new RequestQueue<MailJob>(capacity: 100));
 builder.Services.AddHostedService<BookingQueueWorker>();
+builder.Services.AddHostedService<NotificationQueueWorker>();
 
 var app = builder.Build();
 
