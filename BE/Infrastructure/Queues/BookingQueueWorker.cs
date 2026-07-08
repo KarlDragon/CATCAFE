@@ -11,20 +11,17 @@ public class BookingQueueWorker : BackgroundService
     private readonly IRequestQueue<MailJob> _mailQueue;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<BookingQueueWorker> _logger;
-    private readonly IAuthRepository _authRepository;
 
     public BookingQueueWorker(
         IRequestQueue<BookingQueueRequest> queue,
         IRequestQueue<MailJob> mailQueue,
         IServiceScopeFactory serviceScopeFactory,
-        ILogger<BookingQueueWorker> logger,
-        IAuthRepository authRepository)
+        ILogger<BookingQueueWorker> logger)
     {
         _queue = queue;
         _mailQueue = mailQueue;
         _scopeFactory = serviceScopeFactory;
         _logger = logger;
-        _authRepository = authRepository;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,6 +32,7 @@ public class BookingQueueWorker : BackgroundService
         {
             using var scope = _scopeFactory.CreateScope();
             var bookingService = scope.ServiceProvider.GetRequiredService<IBookingService>();
+            var authRepository = scope.ServiceProvider.GetRequiredService<IAuthRepository>();
 
             try
             {
@@ -44,7 +42,7 @@ public class BookingQueueWorker : BackgroundService
 
                 try
                 {
-                    var user = await _authRepository.GetUserByIdAsync(request.UserId);
+                    var user = await authRepository.GetUserByIdAsync(request.UserId);
                     if (user != null)
                     {
                         var mailJob = new MailJob("BookingConfirmation", (svc, ct) =>
