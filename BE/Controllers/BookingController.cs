@@ -5,8 +5,6 @@ using BE.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using BE.Exceptions;
-using BE.Infrastructure.Queue;
-using BE.Models;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -15,9 +13,7 @@ public class BookingController : ControllerBase
 {
     private readonly IBookingService _bookingService;
 
-    public BookingController(
-        IRequestQueue<BookingQueueRequest> bookingQueue,
-        IBookingService bookingService)
+    public BookingController(IBookingService bookingService)
     {
         _bookingService = bookingService;
     }
