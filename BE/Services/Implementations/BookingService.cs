@@ -24,9 +24,9 @@ public class BookingService : IBookingService
         var foodDrinkPrices = await _foodDrinkRepository.GetFoodDrinkPriceByIdsAsync(foodDrinkIds);
 
         // Validate all requested food/drink IDs exist
-        var missingIds = foodDrinkIds.Where(id => !foodDrinkPrices.ContainsKey(id)).ToList();
-        if (missingIds.Any())
+        if (foodDrinkIds.Count != foodDrinkPrices.Count)
         {
+            var missingIds = foodDrinkIds.Where(id => !foodDrinkPrices.ContainsKey(id)).ToList();
             throw new NotFoundException($"The following FoodDrink IDs were not found or are inactive: {string.Join(", ", missingIds)}");
         }
 
