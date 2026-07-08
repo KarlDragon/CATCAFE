@@ -7,15 +7,18 @@ using Microsoft.Extensions.Hosting;
 public class BookingQueueWorker : BackgroundService
 {
     private readonly IRequestQueue<BookingQueueRequest> _queue;
+    private readonly IRequestQueue<MailJob> _mailQueue;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<BookingQueueWorker> _logger;
 
     public BookingQueueWorker(
         IRequestQueue<BookingQueueRequest> queue,
+        IRequestQueue<MailJob> mailQueue,
         IServiceScopeFactory serviceScopeFactory,
         ILogger<BookingQueueWorker> logger)
     {
         _queue = queue;
+        _mailQueue = mailQueue;
         _scopeFactory = serviceScopeFactory;
         _logger = logger;
     }
@@ -34,6 +37,15 @@ public class BookingQueueWorker : BackgroundService
                 _logger.LogInformation("Processing queued booking for user {UserId}.", request.UserId);
                 var result = await bookingService.CreateBookingInternalAsync(request.CreateBookingDTO, request.UserId);
                 request.CompletionSource.TrySetResult(result);
+                var mailJob = new MailJob(
+                    "BookingConfirmation",
+                    (svc, ct) => svc.SendBookingConfirmationEmailAsync(
+                        request.UserId,
+                        result.BookingId,
+                        result.StartTime,
+                        result.EndTime,
+                        ct));
+                await _mailQueue.EnqueueAsync(mailJob, CancellationToken.None);
             }
             catch (Exception ex)
             {
