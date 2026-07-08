@@ -60,7 +60,8 @@ public class NotificationService : INotificationService
     public async Task SendWelcomeEmailAsync(string toUserName, string toEmail, CancellationToken cancellationToken = default)
     {
         var subject = "Chào mừng đến với Cat Cafe!";
-        var body = $@"Xin chào {toUserName},
+        var body = $@"
+        Xin chào {toUserName},
 
         Cảm ơn bạn đã đăng ký tài khoản tại Cat Cafe. 
         Chúng tôi rất vui mừng được chào đón bạn đến với cộng đồng của chúng tôi.
@@ -78,7 +79,8 @@ public class NotificationService : INotificationService
     DateTime endTime, CancellationToken cancellationToken = default)
     {
         var subject = "Xác nhận đặt bàn tại Cat Cafe";
-        var body = $@"Xin chào {toUserName},
+        var body = $@"
+        Xin chào {toUserName},
 
         Cảm ơn bạn đã đặt bàn tại Cat Cafe. 
         Thông tin đặt bàn của bạn như sau:
