@@ -4,20 +4,19 @@ using BE.Models;
 using BE.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
 public class BookingQueueWorker : BackgroundService
 {
     private readonly IRequestQueue<BookingQueueRequest> _queue;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<BookingQueueWorker> _logger;
 
     public BookingQueueWorker(
         IRequestQueue<BookingQueueRequest> queue,
-        IServiceProvider serviceProvider,
+        IServiceScopeFactory serviceScopeFactory,
         ILogger<BookingQueueWorker> logger)
     {
         _queue = queue;
-        _serviceProvider = serviceProvider;
+        _scopeFactory = serviceScopeFactory;
         _logger = logger;
     }
 
@@ -25,35 +24,21 @@ public class BookingQueueWorker : BackgroundService
     {
         _logger.LogInformation("Booking queue worker started.");
 
-        while (!stoppingToken.IsCancellationRequested)
+        await foreach (var request in _queue.Reader.ReadAllAsync(stoppingToken))
         {
-            BookingQueueRequest request;
-            try
-            {
-                request = await _queue.DequeueAsync(stoppingToken);
-            }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-
-            using var scope = _serviceProvider.CreateScope();
+            using var scope = _scopeFactory.CreateScope();
             var bookingService = scope.ServiceProvider.GetRequiredService<IBookingService>();
 
             try
             {
                 _logger.LogInformation("Processing queued booking for user {UserId}.", request.UserId);
                 var result = await bookingService.CreateBookingInternalAsync(request.CreateBookingDTO, request.UserId);
-                request.CompletionSource.SetResult(result);
-                _logger.LogInformation("Queued booking processed for user {UserId}.", request.UserId);
+                request.CompletionSource.TrySetResult(result);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to process queued booking for user {UserId}.", request.UserId);
-                // swallow exceptions so worker continues processing next items
-
-                // Set the exception on the TaskCompletionSource to propagate the error back to the caller
-                request.CompletionSource.SetException(ex);
+                request.CompletionSource.TrySetException(ex);
             }
         }
 
