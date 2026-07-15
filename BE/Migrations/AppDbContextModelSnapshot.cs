@@ -175,6 +175,31 @@ namespace BE.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("PaymentID");
+
+                    b.HasIndex("BookingID");
+
+                    b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("BE.Models.PaymentAttempt", b =>
+                {
+                    b.Property<int>("AttemptID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("AttemptID"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime?>("ExpiresAt")
                         .HasColumnType("datetime(6)");
 
@@ -182,15 +207,15 @@ namespace BE.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
-                    b.Property<DateTime?>("PaidAt")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<string>("PayUrl")
                         .HasColumnType("longtext");
 
+                    b.Property<int>("PaymentID")
+                        .HasColumnType("int");
+
                     b.Property<string>("RequestId")
                         .IsRequired()
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("longtext");
 
                     b.Property<int?>("ResultCode")
                         .HasColumnType("int");
@@ -202,17 +227,14 @@ namespace BE.Migrations
                     b.Property<string>("TransactionId")
                         .HasColumnType("longtext");
 
-                    b.HasKey("PaymentID");
-
-                    b.HasIndex("BookingID");
+                    b.HasKey("AttemptID");
 
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.HasIndex("RequestId")
-                        .IsUnique();
+                    b.HasIndex("PaymentID");
 
-                    b.ToTable("Payments");
+                    b.ToTable("PaymentAttempts");
                 });
 
             modelBuilder.Entity("BE.Models.PaymentGatewayLog", b =>
@@ -230,6 +252,9 @@ namespace BE.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int?>("PaymentAttemptAttemptID")
+                        .HasColumnType("int");
+
                     b.Property<int>("PaymentID")
                         .HasColumnType("int");
 
@@ -238,6 +263,8 @@ namespace BE.Migrations
                         .HasColumnType("longtext");
 
                     b.HasKey("PaymentGatewayLogID");
+
+                    b.HasIndex("PaymentAttemptAttemptID");
 
                     b.HasIndex("PaymentID");
 
@@ -402,10 +429,25 @@ namespace BE.Migrations
                     b.Navigation("Booking");
                 });
 
-            modelBuilder.Entity("BE.Models.PaymentGatewayLog", b =>
+            modelBuilder.Entity("BE.Models.PaymentAttempt", b =>
                 {
                     b.HasOne("BE.Models.Payment", "Payment")
+                        .WithMany("Attempts")
+                        .HasForeignKey("PaymentID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Payment");
+                });
+
+            modelBuilder.Entity("BE.Models.PaymentGatewayLog", b =>
+                {
+                    b.HasOne("BE.Models.PaymentAttempt", null)
                         .WithMany("PaymentGatewayLogs")
+                        .HasForeignKey("PaymentAttemptAttemptID");
+
+                    b.HasOne("BE.Models.Payment", "Payment")
+                        .WithMany()
                         .HasForeignKey("PaymentID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -421,6 +463,11 @@ namespace BE.Migrations
                 });
 
             modelBuilder.Entity("BE.Models.Payment", b =>
+                {
+                    b.Navigation("Attempts");
+                });
+
+            modelBuilder.Entity("BE.Models.PaymentAttempt", b =>
                 {
                     b.Navigation("PaymentGatewayLogs");
                 });

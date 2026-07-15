@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BE.Migrations
 {
     /// <inheritdoc />
-    public partial class CreatePaymentAndPaymentLogTable : Migration
+    public partial class CreatePaymentTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,16 +31,6 @@ namespace BE.Migrations
                     Amount = table.Column<long>(type: "bigint", nullable: false),
                     Status = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    OrderId = table.Column<string>(type: "varchar(255)", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    RequestId = table.Column<string>(type: "varchar(255)", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    TransactionId = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ResultCode = table.Column<int>(type: "int", nullable: true),
-                    PayUrl = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ExpiresAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     PaidAt = table.Column<DateTime>(type: "datetime(6)", nullable: true)
                 },
@@ -57,6 +47,39 @@ namespace BE.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "PaymentAttempts",
+                columns: table => new
+                {
+                    AttemptID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    PaymentID = table.Column<int>(type: "int", nullable: false),
+                    OrderId = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    RequestId = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TransactionId = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ResultCode = table.Column<int>(type: "int", nullable: true),
+                    PayUrl = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Status = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PaymentAttempts", x => x.AttemptID);
+                    table.ForeignKey(
+                        name: "FK_PaymentAttempts_Payments_PaymentID",
+                        column: x => x.PaymentID,
+                        principalTable: "Payments",
+                        principalColumn: "PaymentID",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "PaymentGatewayLogs",
                 columns: table => new
                 {
@@ -67,11 +90,17 @@ namespace BE.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     RawPayload = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    PaymentAttemptAttemptID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PaymentGatewayLogs", x => x.PaymentGatewayLogID);
+                    table.ForeignKey(
+                        name: "FK_PaymentGatewayLogs_PaymentAttempts_PaymentAttemptAttemptID",
+                        column: x => x.PaymentAttemptAttemptID,
+                        principalTable: "PaymentAttempts",
+                        principalColumn: "AttemptID");
                     table.ForeignKey(
                         name: "FK_PaymentGatewayLogs_Payments_PaymentID",
                         column: x => x.PaymentID,
@@ -82,6 +111,22 @@ namespace BE.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PaymentAttempts_OrderId",
+                table: "PaymentAttempts",
+                column: "OrderId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PaymentAttempts_PaymentID",
+                table: "PaymentAttempts",
+                column: "PaymentID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PaymentGatewayLogs_PaymentAttemptAttemptID",
+                table: "PaymentGatewayLogs",
+                column: "PaymentAttemptAttemptID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PaymentGatewayLogs_PaymentID",
                 table: "PaymentGatewayLogs",
                 column: "PaymentID");
@@ -90,18 +135,6 @@ namespace BE.Migrations
                 name: "IX_Payments_BookingID",
                 table: "Payments",
                 column: "BookingID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Payments_OrderId",
-                table: "Payments",
-                column: "OrderId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Payments_RequestId",
-                table: "Payments",
-                column: "RequestId",
-                unique: true);
         }
 
         /// <inheritdoc />
@@ -109,6 +142,9 @@ namespace BE.Migrations
         {
             migrationBuilder.DropTable(
                 name: "PaymentGatewayLogs");
+
+            migrationBuilder.DropTable(
+                name: "PaymentAttempts");
 
             migrationBuilder.DropTable(
                 name: "Payments");

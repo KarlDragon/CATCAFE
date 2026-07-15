@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<BookingCat> BookingCats { get; set; }
     public DbSet<BookingDetail> BookingDetails { get; set; }
     public DbSet<Payment> Payments { get; set; }
+    public DbSet<PaymentAttempt> PaymentAttempts { get; set; }
     public DbSet<PaymentGatewayLog> PaymentGatewayLogs { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -29,6 +30,10 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Payment>()
         .Property(p => p.Status)
+        .HasConversion<string>();
+
+        modelBuilder.Entity<PaymentAttempt>()
+        .Property(pa => pa.Status)
         .HasConversion<string>();
 
         modelBuilder.Entity<PaymentGatewayLog>()
@@ -74,10 +79,9 @@ public class AppDbContext : DbContext
             .HasDefaultValue(true);
 
         // Unique constraint for Payment
-        modelBuilder.Entity<Payment>(entity =>
+        modelBuilder.Entity<PaymentAttempt>(entity =>
         {
             entity.HasIndex(p => p.OrderId).IsUnique();
-            entity.HasIndex(p => p.RequestId).IsUnique();
         });
 
 
