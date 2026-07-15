@@ -22,31 +22,6 @@ namespace BE.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Payments",
-                columns: table => new
-                {
-                    PaymentID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    BookingID = table.Column<int>(type: "int", nullable: false),
-                    Amount = table.Column<long>(type: "bigint", nullable: false),
-                    Status = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    PaidAt = table.Column<DateTime>(type: "datetime(6)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Payments", x => x.PaymentID);
-                    table.ForeignKey(
-                        name: "FK_Payments_Bookings_BookingID",
-                        column: x => x.BookingID,
-                        principalTable: "Bookings",
-                        principalColumn: "BookingID",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "PaymentAttempts",
                 columns: table => new
                 {
@@ -70,12 +45,38 @@ namespace BE.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PaymentAttempts", x => x.AttemptID);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Payments",
+                columns: table => new
+                {
+                    PaymentID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    BookingID = table.Column<int>(type: "int", nullable: false),
+                    Amount = table.Column<long>(type: "bigint", nullable: false),
+                    Status = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    PaidAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    SuccessfulAttemptId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payments", x => x.PaymentID);
                     table.ForeignKey(
-                        name: "FK_PaymentAttempts_Payments_PaymentID",
-                        column: x => x.PaymentID,
-                        principalTable: "Payments",
-                        principalColumn: "PaymentID",
+                        name: "FK_Payments_Bookings_BookingID",
+                        column: x => x.BookingID,
+                        principalTable: "Bookings",
+                        principalColumn: "BookingID",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Payments_PaymentAttempts_SuccessfulAttemptId",
+                        column: x => x.SuccessfulAttemptId,
+                        principalTable: "PaymentAttempts",
+                        principalColumn: "AttemptID",
+                        onDelete: ReferentialAction.Restrict);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -135,19 +136,36 @@ namespace BE.Migrations
                 name: "IX_Payments_BookingID",
                 table: "Payments",
                 column: "BookingID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_SuccessfulAttemptId",
+                table: "Payments",
+                column: "SuccessfulAttemptId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_PaymentAttempts_Payments_PaymentID",
+                table: "PaymentAttempts",
+                column: "PaymentID",
+                principalTable: "Payments",
+                principalColumn: "PaymentID",
+                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_PaymentAttempts_Payments_PaymentID",
+                table: "PaymentAttempts");
+
             migrationBuilder.DropTable(
                 name: "PaymentGatewayLogs");
 
             migrationBuilder.DropTable(
-                name: "PaymentAttempts");
+                name: "Payments");
 
             migrationBuilder.DropTable(
-                name: "Payments");
+                name: "PaymentAttempts");
 
             migrationBuilder.AlterColumn<int>(
                 name: "Status",

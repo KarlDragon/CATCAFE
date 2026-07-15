@@ -182,9 +182,14 @@ namespace BE.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int?>("SuccessfulAttemptId")
+                        .HasColumnType("int");
+
                     b.HasKey("PaymentID");
 
                     b.HasIndex("BookingID");
+
+                    b.HasIndex("SuccessfulAttemptId");
 
                     b.ToTable("Payments");
                 });
@@ -426,7 +431,14 @@ namespace BE.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BE.Models.PaymentAttempt", "SuccessfulAttempt")
+                        .WithMany()
+                        .HasForeignKey("SuccessfulAttemptId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Booking");
+
+                    b.Navigation("SuccessfulAttempt");
                 });
 
             modelBuilder.Entity("BE.Models.PaymentAttempt", b =>

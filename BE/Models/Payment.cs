@@ -14,5 +14,8 @@ public class Payment
     public PaymentStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? PaidAt { get; set; } 
+    public int? SuccessfulAttemptId { get; set; }
+    [ForeignKey(nameof(SuccessfulAttemptId))]
+    public PaymentAttempt? SuccessfulAttempt { get; set; }
     public ICollection<PaymentAttempt> Attempts { get; set; } = new List<PaymentAttempt>();
 }

@@ -84,6 +84,17 @@ public class AppDbContext : DbContext
             entity.HasIndex(p => p.OrderId).IsUnique();
         });
 
+        modelBuilder.Entity<PaymentAttempt>()
+        .HasOne( p => p.Payment)
+        .WithMany( pa => pa.Attempts )
+        .HasForeignKey( p => p.PaymentID )
+        .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Payment>()
+        .HasOne( p => p.SuccessfulAttempt)
+        .WithMany()
+        .HasForeignKey( p => p.SuccessfulAttemptId )
+        .OnDelete(DeleteBehavior.Restrict);
 
     }
 }

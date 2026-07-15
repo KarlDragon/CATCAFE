@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260715121823_CreatePaymentTable")]
+    [Migration("20260715130044_CreatePaymentTable")]
     partial class CreatePaymentTable
     {
         /// <inheritdoc />
@@ -185,9 +185,14 @@ namespace BE.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int?>("SuccessfulAttemptId")
+                        .HasColumnType("int");
+
                     b.HasKey("PaymentID");
 
                     b.HasIndex("BookingID");
+
+                    b.HasIndex("SuccessfulAttemptId");
 
                     b.ToTable("Payments");
                 });
@@ -429,7 +434,14 @@ namespace BE.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BE.Models.PaymentAttempt", "SuccessfulAttempt")
+                        .WithMany()
+                        .HasForeignKey("SuccessfulAttemptId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Booking");
+
+                    b.Navigation("SuccessfulAttempt");
                 });
 
             modelBuilder.Entity("BE.Models.PaymentAttempt", b =>
