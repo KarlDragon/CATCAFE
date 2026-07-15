@@ -12,12 +12,27 @@ public class AppDbContext : DbContext
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<BookingCat> BookingCats { get; set; }
     public DbSet<BookingDetail> BookingDetails { get; set; }
+    public DbSet<Payment> Payments { get; set; }
+    public DbSet<PaymentGatewayLog> PaymentGatewayLogs { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
+        // Save enum as string
         modelBuilder.Entity<Users>()
         .Property(e => e.Role)
+        .HasConversion<string>();
+
+        modelBuilder.Entity<Booking>()
+        .Property(e => e.Status)
+        .HasConversion<string>();
+
+        modelBuilder.Entity<Payment>()
+        .Property(p => p.Status)
+        .HasConversion<string>();
+
+        modelBuilder.Entity<PaymentGatewayLog>()
+        .Property(l => l.Direction)
         .HasConversion<string>();
 
         // Make sure there's no same bookingID but has 2 same CatID or FoodDrinkID in it
@@ -57,5 +72,14 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Cat>()
             .Property(c => c.IsActive)
             .HasDefaultValue(true);
+
+        // Unique constraint for Payment
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.HasIndex(p => p.OrderId).IsUnique();
+            entity.HasIndex(p => p.RequestId).IsUnique();
+        });
+
+
     }
 }
