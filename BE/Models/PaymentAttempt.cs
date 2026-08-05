@@ -29,5 +29,5 @@ public class PaymentAttempt
     public PaymentAttemptStatus Status { get; set; }
     public DateTime? ExpiresAt { get; set; } // MoMo's orderExpireTime
     public DateTime CreatedAt { get; set; }
-    public ICollection<PaymentGatewayLog> PaymentGatewayLogs { get; set; } = new List<PaymentGatewayLog>();
+    public ICollection<PaymentGatewayLog>? PaymentGatewayLogs { get; set; } = new List<PaymentGatewayLog>();
 }

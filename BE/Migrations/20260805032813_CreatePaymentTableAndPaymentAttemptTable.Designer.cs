@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260715130044_CreatePaymentTable")]
-    partial class CreatePaymentTable
+    [Migration("20260805032813_CreatePaymentTableAndPaymentAttemptTable")]
+    partial class CreatePaymentTableAndPaymentAttemptTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
