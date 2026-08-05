@@ -10,13 +10,13 @@ public class PaymentRepository : IPaymentRepository
     {
         _context = context;
     }
-    public async Task<bool> CreatePayment(Payment payment)
+    public async Task<bool> CreatePaymentAsync(Payment payment)
     {
         _context.Payments.Add(payment);
         return await _context.SaveChangesAsync() > 0; 
     }
 
-    public async Task<bool> UpdatePayment(int PaymentID, PaymentStatus? paymentStatus, DateTime? paidAt, int? successfulAttemptId)
+    public async Task<bool> UpdatePaymentAsync(int PaymentID, PaymentStatus? paymentStatus, DateTime? paidAt, int? successfulAttemptId)
     {
         var payment = await _context.Payments.FindAsync(PaymentID);
         if (payment == null) return false;
@@ -28,7 +28,7 @@ public class PaymentRepository : IPaymentRepository
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task<IEnumerable<Payment>> GetAllPayments(int userId)
+    public async Task<IEnumerable<Payment>> GetAllPaymentsAsync(int userId)
     {
         return await _context.Payments
                     .AsNoTracking()
