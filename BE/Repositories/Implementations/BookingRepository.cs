@@ -48,4 +48,9 @@ public class BookingRepository : IBookingRepository
                                                      b.Status != BookingStatus.Completed && 
                                                      b.BookedTime < endTime && b.EndTime > bookedTime);
     }
+
+    public async Task<decimal> CaculdateTotalBookingPriceAsync(int bookingId)
+    {
+        return await _context.BookingDetails.Where(bd => bd.BookingID == bookingId).SumAsync(bd => bd.Quantity * bd.PriceAtBooking);
+    }
 }
