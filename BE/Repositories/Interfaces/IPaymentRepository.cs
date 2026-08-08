@@ -1,10 +1,10 @@
 using BE.Models;
-
+using BE.DTOs;
 namespace BE.Repositories.Interfaces;
 
 public interface IPaymentRepository
 {
     Task<bool> CreatePaymentAsync(Payment payment);
-    Task<bool> UpdatePaymentAsync(int PaymentID, PaymentStatus? paymentStatus, DateTime? paidAt, int? successfulAttemptId);
+    Task<bool> UpdatePaymentAsync(UpdatePaymentDTO updatePaymentDTO);
     Task<IEnumerable<Payment>> GetAllPaymentsAsync(int userId);
 }

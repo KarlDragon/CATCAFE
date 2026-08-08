@@ -1,6 +1,7 @@
 namespace BE.Repositories.Implementations;
 using BE.Models;
 using BE.Repositories.Interfaces;
+using BE.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 public class PaymentRepository : IPaymentRepository
@@ -16,14 +17,14 @@ public class PaymentRepository : IPaymentRepository
         return await _context.SaveChangesAsync() > 0; 
     }
 
-    public async Task<bool> UpdatePaymentAsync(int PaymentID, PaymentStatus? paymentStatus, DateTime? paidAt, int? successfulAttemptId)
+    public async Task<bool> UpdatePaymentAsync(UpdatePaymentDTO updatePaymentDTO)
     {
-        var payment = await _context.Payments.FindAsync(PaymentID);
+        var payment = await _context.Payments.FindAsync(updatePaymentDTO.PaymentID);
         if (payment == null) return false;
 
-        payment.Status = paymentStatus ?? payment.Status;
-        payment.PaidAt = paidAt ?? payment.PaidAt;
-        payment.SuccessfulAttemptId = successfulAttemptId ?? payment.SuccessfulAttemptId;
+        payment.Status = updatePaymentDTO.PaymentStatus ?? payment.Status;
+        payment.PaidAt = updatePaymentDTO.PaidAt ?? payment.PaidAt;
+        payment.SuccessfulAttemptId = updatePaymentDTO.SuccessfulAttemptId ?? payment.SuccessfulAttemptId;
 
         return await _context.SaveChangesAsync() > 0;
     }
