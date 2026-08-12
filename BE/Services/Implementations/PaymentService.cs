@@ -6,13 +6,16 @@ using BE.Models;
 public class PaymentService : IPaymentService
 {
     private readonly IPaymentRepository _paymentRepository;
+    private readonly IPaymentAttempRepository _paymentAttempRepository;
 
-    public PaymentService(IPaymentRepository paymentRepository)
+    public PaymentService(IPaymentRepository paymentRepository,
+                          IPaymentAttempRepository paymentAttempRepository )
     {
         _paymentRepository = paymentRepository;
+        _paymentAttempRepository = paymentAttempRepository;
     }
 
-    public async Task<bool> CreatePaymentAsync(CreatePaymentDTO createPaymentDTO)
+    public async Task CreatePaymentAsync(CreatePaymentDTO createPaymentDTO)
     {
         var newPayment = new Payment
         {
@@ -21,6 +24,20 @@ public class PaymentService : IPaymentService
             Status = PaymentStatus.Pending,
             CreatedAt = DateTime.UtcNow
         };
-        return await _paymentRepository.CreatePaymentAsync(newPayment);
+        int paymentID = await _paymentRepository.CreatePaymentAsync(newPayment);
+
+        string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss"); 
+        string orderId = $"CATCAFE-{paymentID}-{timestamp}";
+        string requestId = Guid.NewGuid().ToString();
+
+        var newPaymentAttempt = new PaymentAttempt
+        {
+            PaymentID = paymentID,
+            OrderId = orderId,
+            RequestId = requestId,
+            Status = PaymentAttemptStatus.Init,
+            CreatedAt = DateTime.UtcNow
+        };
+        await _paymentAttempRepository.CreatePaymentAttemptAsync(newPaymentAttempt);
     }
 }
