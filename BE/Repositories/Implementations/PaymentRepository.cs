@@ -11,10 +11,11 @@ public class PaymentRepository : IPaymentRepository
     {
         _context = context;
     }
-    public async Task<bool> CreatePaymentAsync(Payment payment)
+    public async Task<int> CreatePaymentAsync(Payment payment)
     {
         _context.Payments.Add(payment);
-        return await _context.SaveChangesAsync() > 0; 
+        await _context.SaveChangesAsync();
+        return payment.PaymentID;
     }
 
     public async Task<bool> UpdatePaymentAsync(UpdatePaymentDTO updatePaymentDTO)

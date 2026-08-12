@@ -4,7 +4,7 @@ namespace BE.Repositories.Interfaces;
 
 public interface IPaymentRepository
 {
-    Task<bool> CreatePaymentAsync(Payment payment);
+    Task<int> CreatePaymentAsync(Payment payment);
     Task<bool> UpdatePaymentAsync(UpdatePaymentDTO updatePaymentDTO);
     Task<IEnumerable<Payment>> GetAllPaymentsAsync(int userId);
 }
