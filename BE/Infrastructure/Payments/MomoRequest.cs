@@ -1,4 +1,4 @@
-namespace BE.Models;
+namespace BE.Infrastructure.Payments;
 public class MomoRequest
 {
     public string PartnerCode { get; set; } = "";

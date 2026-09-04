@@ -1,5 +1,5 @@
-namespace BE.DTOs;
-public class MomoRequestDTO
+namespace BE.Infrastructure.Payments;
+public class GatewayPaymentRequest
 {
     public string RequestId { get; set; } = "";
     public long Amount { get; set; }
