@@ -97,7 +97,7 @@ public class BookingService : IBookingService
         return await _bookingRepository.GetAllBookingsAsync(cancellationToken);
     }
 
-    public async Task<int> CaculdateTotalBookingPriceAsync(int bookingId)
+    public async Task<int> CalculateTotalBookingPriceAsync(int bookingId)
     {
         var totalBookingPrice = _bookingRepository.CaculdateTotalBookingPriceAsync(bookingId);
         return Convert.ToInt32(totalBookingPrice);

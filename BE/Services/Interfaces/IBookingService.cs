@@ -10,4 +10,6 @@ public interface IBookingService
     Task ChangeBookingStatusAsync( int bookingId, BookingStatus bookingStatus );
 
     Task<IEnumerable<Booking>> GetAllBookingsAsync(CancellationToken cancellationToken);
+
+    Task<int> CalculateTotalBookingPriceAsync(int bookingId);
 }
