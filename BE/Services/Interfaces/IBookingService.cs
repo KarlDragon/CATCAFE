@@ -12,4 +12,6 @@ public interface IBookingService
     Task<IEnumerable<Booking>> GetAllBookingsAsync(CancellationToken cancellationToken);
 
     Task<int> CalculateTotalBookingPriceAsync(int bookingId);
+
+    Task<string> GetTableInfo(int bookingId);
 }
