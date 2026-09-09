@@ -102,4 +102,21 @@ public class BookingService : IBookingService
         var totalBookingPrice = _bookingRepository.CaculdateTotalBookingPriceAsync(bookingId);
         return Convert.ToInt32(totalBookingPrice);
     }
+
+    public async Task<string> GetTableInfo(int bookingId)
+    {
+        var booking = await _bookingRepository.GetBookingById(bookingId);
+        string OrderInfo;
+        if ( booking!=null && booking.Table!=null)
+        {
+            int tableId = booking.Table.TableID;
+            DateTime bookedTime = booking.BookedTime;
+            OrderInfo = $"Thanh toan ban {tableId} dat vao luc: {bookedTime}";
+        }
+        else
+        {
+            throw new Exception($"Booking or Table maybe null, pls recheck bookingId: {bookingId} ");
+        }
+        return OrderInfo;
+    }
 }
