@@ -33,6 +33,11 @@ public class BookingRepository : IBookingRepository
         return affected > 0;
     }
 
+    public async Task<Booking?> GetBookingById(int bookingId)
+    {
+        return await _context.Bookings.SingleOrDefaultAsync(b => b.BookingID == bookingId);
+    }
+
     public async Task<IEnumerable<Booking>> GetAllBookingsAsync(CancellationToken cancellationToken)
     {
         return await _context.Bookings
