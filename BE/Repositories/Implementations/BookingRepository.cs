@@ -35,7 +35,7 @@ public class BookingRepository : IBookingRepository
 
     public async Task<Booking?> GetBookingById(int bookingId)
     {
-        return await _context.Bookings.SingleOrDefaultAsync(b => b.BookingID == bookingId);
+        return await _context.Bookings.Include(b => b.Table).SingleOrDefaultAsync(b => b.BookingID == bookingId);
     }
 
     public async Task<IEnumerable<Booking>> GetAllBookingsAsync(CancellationToken cancellationToken)
