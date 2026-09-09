@@ -1,5 +1,5 @@
 namespace BE.Infrastructure.Payments;
-public class MomoResponseDTO
+public class MomoResponse
 {
     public string PartnerCode { get; set; } = "";
     public string RequestId { get; set; } = "";
