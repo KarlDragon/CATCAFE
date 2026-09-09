@@ -16,8 +16,8 @@ public class MomoSignature
         
         var keyBytes = Encoding.UTF8.GetBytes(secretKey);
         var signatureBytes = Encoding.UTF8.GetBytes(rawSignature);
-
-        var hashBytes = new HMACSHA256(keyBytes).ComputeHash(signatureBytes);
+        using var hmac = new HMACSHA256(keyBytes);
+        var hashBytes = hmac.ComputeHash(signatureBytes);
 
         return Convert.ToHexString(hashBytes).ToLowerInvariant();
     }
