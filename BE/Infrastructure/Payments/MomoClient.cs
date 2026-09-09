@@ -27,6 +27,9 @@ public class MomoClient
         string secretKey = momoCredentials["SecretKey"] ?? throw new Exception("Where's the secretKey of Momo???");
         string momoEndpoint = momoCredentials["MoMoApiEndpoint"] ?? throw new Exception("Re-check the momo endpoint");
 
+        var reactClient = _config.GetSection("ReactClient"); 
+        string redirectUrl = reactClient["RedirectUrlAfterPay"] ?? throw new Exception("Remember to check redirect link");
+        
         string signature = _momoSignature.CreateAndHash_HmacSha256_Signature(accessKey,
                                                                 gatewayPaymentRequest.Amount,
                                                                 gatewayPaymentRequest.ExtraData,
@@ -34,7 +37,7 @@ public class MomoClient
                                                                 gatewayPaymentRequest.OrderId,
                                                                 gatewayPaymentRequest.OrderInfo,
                                                                 partnerCode,
-                                                                gatewayPaymentRequest.RedirectUrl,
+                                                                redirectUrl,
                                                                 gatewayPaymentRequest.RequestId,
                                                                 requestType,
                                                                 secretKey);
@@ -48,7 +51,7 @@ public class MomoClient
             Amount = gatewayPaymentRequest.Amount,
             OrderId = gatewayPaymentRequest.OrderId,
             OrderInfo = gatewayPaymentRequest.OrderInfo,
-            RedirectUrl = gatewayPaymentRequest.RedirectUrl,
+            RedirectUrl = redirectUrl,
             IpnUrl = ipnUrl,
             RequestType = requestType,
             ExtraData = gatewayPaymentRequest.ExtraData,
