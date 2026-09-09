@@ -15,7 +15,7 @@ public class MomoClient
         _momoSignature = momoSignature;
         _httpClientFactory = httpClientFactory;
     }
-    public async Task<MomoResponse> InitiatePayment(GatewayPaymentRequest gatewayPaymentRequest, CancellationToken cancellationToken = default)
+    public async Task<GatewayPaymentResponse> InitiatePayment(GatewayPaymentRequest gatewayPaymentRequest, CancellationToken cancellationToken = default)
     {
         var momoCredentials = _config.GetSection("MomoCredentials");
         string partnerCode = momoCredentials["PartnerCode"] ?? throw new Exception("Check the partner code, maybe null?");
@@ -65,7 +65,7 @@ public class MomoClient
             // Log body in case something went wrong
             throw new InvalidOperationException($"MoMo request failed ({(int)response.StatusCode}): {body}");
         }
-        MomoResponse momoResponse = JsonSerializer.Deserialize<MomoResponse>(body)
+        GatewayPaymentResponse momoResponse = JsonSerializer.Deserialize<GatewayPaymentResponse>(body)
             ?? throw new InvalidOperationException("MoMo response was empty.");
         return momoResponse;
     }
