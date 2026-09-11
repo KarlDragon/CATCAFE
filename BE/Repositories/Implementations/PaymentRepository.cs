@@ -40,4 +40,11 @@ public class PaymentRepository : IPaymentRepository
                     .OrderByDescending(p => p.CreatedAt)
                     .ToListAsync();
     }
+
+    public async Task<bool> IsPaymentExist(int bookingId)
+    {
+        Payment? payment = await _context.Payments.SingleOrDefaultAsync( p => p.BookingID == bookingId);
+        if (payment == null) return false;
+        return true;
+    }
 }
