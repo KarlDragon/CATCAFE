@@ -11,21 +11,29 @@ public class PaymentService : IPaymentService
     private readonly IPaymentRepository _paymentRepository;
     private readonly IPaymentAttempRepository _paymentAttempRepository;
     private readonly IBookingService _bookingService;
-    private readonly MomoClient _momoClient;
+    private readonly IMomoClient _momoClient;
+    private readonly IPaymentGatewayLogRepository _paymentGatewayLogRepository;
     public PaymentService(IPaymentRepository paymentRepository,
                           IPaymentAttempRepository paymentAttempRepository,
                           IBookingService bookingService,
-                          MomoClient momoClient)
+                          IMomoClient momoClient,
+                          IPaymentGatewayLogRepository paymentGatewayLogRepository)
     {
         _paymentRepository = paymentRepository;
         _paymentAttempRepository = paymentAttempRepository;
         _bookingService = bookingService;
         _momoClient = momoClient;
+        _paymentGatewayLogRepository = paymentGatewayLogRepository;
     }
 
-    //create payment, first paymentAttempt and return payurl
+    //create payment, first paymentAttempt and return payurl, throw exception if payment already exist
     public async Task<string> CreatePaymentAsync(CreatePaymentDTO createPaymentDTO, CancellationToken cancellationToken = default)
     {
+        Payment? payment = await _paymentRepository.GetPaymentWithBookingId(createPaymentDTO.BookingID);
+        if ( payment != null)
+        {
+            throw new FailedToCreateException($"BookingId {createPaymentDTO.BookingID} already has a payment");
+        }
         int amount = await _bookingService.CalculateTotalBookingPriceAsync(createPaymentDTO.BookingID);
 
         int paymentID = await CreatePendingPaymentAsync(createPaymentDTO.BookingID, amount);
@@ -53,7 +61,7 @@ public class PaymentService : IPaymentService
     }
 
     // save attemp into db
-    private async Task<PaymentAttempt> CreatePaymentAttemptAsync(int paymentId)
+    public async Task<PaymentAttempt> CreatePaymentAttemptAsync(int paymentId)
     {
         string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
         var attempt = new PaymentAttempt
@@ -80,21 +88,29 @@ public class PaymentService : IPaymentService
         };
     }
 
-    private async Task<string> InitiateGatewayPaymentAsync(
-        PaymentAttempt attempt, GatewayPaymentRequest gatewayRequest, CancellationToken cancellationToken)
+    private async Task<string> InitiateGatewayPaymentAsync(PaymentAttempt attempt, GatewayPaymentRequest gatewayPaymentRequest, CancellationToken cancellationToken)
     {
         try
         {
-            GatewayPaymentResponse response = await _momoClient.InitiatePayment(gatewayRequest, cancellationToken);
+            var (momoRequest, rawPayload) = _momoClient.BuildPaymentRequest(gatewayPaymentRequest);
+
+            await CreatePaymentLog(new PaymentGatewayLogDTO
+            {
+                PaymentID = attempt.PaymentID,
+                RawPayload = rawPayload,
+                Direction = PaymentLogDirection.CreateRequest
+            });
+
+            var momoResponse = await _momoClient.SendPaymentRequest(momoRequest, cancellationToken);
 
             var updatePaymentAttempt = new UpdatePaymentAttemptDTO
             {
                 AttemptId = attempt.AttemptID,
                 Status = PaymentAttemptStatus.Redirected,
-                PayUrl = response.PayUrl
+                PayUrl = momoResponse.PayUrl
             };
             await _paymentAttempRepository.UpdatePaymentAttemptAsync(updatePaymentAttempt);
-            return response.PayUrl;
+            return momoResponse.PayUrl;
         }
         catch (Exception)
         {
@@ -106,4 +122,27 @@ public class PaymentService : IPaymentService
             throw;
         }
     }
+
+    public async Task UpdatePaymentAttempt(UpdatePaymentAttemptDTO updatePaymentAttemptDTO)
+    {
+        await _paymentAttempRepository.UpdatePaymentAttemptAsync(updatePaymentAttemptDTO);
+    }
+
+    public async Task UpdatePayment(UpdatePaymentDTO updatePaymentDTO)
+    {
+        await _paymentRepository.UpdatePaymentAsync(updatePaymentDTO);
+    }
+
+    private async Task<bool> CreatePaymentLog(PaymentGatewayLogDTO paymentGatewayLogDTO)
+    {
+        var paymentLog = new PaymentGatewayLog
+        {
+            PaymentID = paymentGatewayLogDTO.PaymentID,
+            RawPayload = paymentGatewayLogDTO.RawPayload,
+            Direction = paymentGatewayLogDTO.Direction,
+            CreatedAt = DateTime.UtcNow
+        };
+        return await _paymentGatewayLogRepository.CreatePaymentGatewayLogAsync(paymentLog);
+    }
+
 }
