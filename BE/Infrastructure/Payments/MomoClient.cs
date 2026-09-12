@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 
-public class MomoClient
+public class MomoClient : IMomoClient
 {
     private readonly IConfiguration _config;
     private readonly MomoSignature _momoSignature;
@@ -15,7 +15,7 @@ public class MomoClient
         _momoSignature = momoSignature;
         _httpClientFactory = httpClientFactory;
     }
-    public async Task<GatewayPaymentResponse> InitiatePayment(GatewayPaymentRequest gatewayPaymentRequest, CancellationToken cancellationToken = default)
+    public (MomoRequest Request, string RawPayload) BuildPaymentRequest(GatewayPaymentRequest gatewayPaymentRequest)
     {
         var momoCredentials = _config.GetSection("MomoCredentials");
         string partnerCode = momoCredentials["PartnerCode"] ?? throw new Exception("Check the partner code, maybe null?");
@@ -25,23 +25,14 @@ public class MomoClient
         string lang = momoCredentials["Lang"] ?? throw new Exception(" vi or en or u forgot both?");
         string accessKey = momoCredentials["AccessKey"] ?? throw new Exception("This is important, CHECK CHECK CHECK because the accesskey is null!");
         string secretKey = momoCredentials["SecretKey"] ?? throw new Exception("Where's the secretKey of Momo???");
-        string momoEndpoint = momoCredentials["MoMoApiEndpoint"] ?? throw new Exception("Re-check the momo endpoint");
 
-        var reactClient = _config.GetSection("ReactClient"); 
+        var reactClient = _config.GetSection("ReactClient");
         string redirectUrl = reactClient["RedirectUrlAfterPay"] ?? throw new Exception("Remember to check redirect link");
-        
+
         string signature = _momoSignature.CreateAndHash_HmacSha256_Signature(accessKey,
-                                                                gatewayPaymentRequest.Amount,
-                                                                gatewayPaymentRequest.ExtraData,
-                                                                ipnUrl,
-                                                                gatewayPaymentRequest.OrderId,
-                                                                gatewayPaymentRequest.OrderInfo,
-                                                                partnerCode,
-                                                                redirectUrl,
-                                                                gatewayPaymentRequest.RequestId,
-                                                                requestType,
-                                                                secretKey);
-        HttpClient client = _httpClientFactory.CreateClient();
+            gatewayPaymentRequest.Amount, gatewayPaymentRequest.ExtraData, ipnUrl,
+            gatewayPaymentRequest.OrderId, gatewayPaymentRequest.OrderInfo, partnerCode,
+            redirectUrl, gatewayPaymentRequest.RequestId, requestType, secretKey);
 
         var momoRequest = new MomoRequest
         {
@@ -59,17 +50,25 @@ public class MomoClient
             Signature = signature
         };
 
+        string rawPayload = JsonSerializer.Serialize(momoRequest);
+        return (momoRequest, rawPayload);
+    }
+
+    public async Task<GatewayPaymentResponse> SendPaymentRequest(MomoRequest momoRequest, CancellationToken cancellationToken = default)
+    {
+        string momoEndpoint = _config.GetSection("MomoCredentials")["MoMoApiEndpoint"]
+            ?? throw new Exception("Re-check the momo endpoint");
+
+        HttpClient client = _httpClientFactory.CreateClient();
         client.DefaultRequestHeaders.Accept.Clear();
-        client.DefaultRequestHeaders.Accept.Add( new MediaTypeWithQualityHeaderValue("application/json"));
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
         HttpResponseMessage response = await client.PostAsJsonAsync(momoEndpoint, momoRequest, cancellationToken);
         var body = await response.Content.ReadAsStringAsync(cancellationToken);
         if (!response.IsSuccessStatusCode)
-        {
-            // Log body in case something went wrong
             throw new InvalidOperationException($"MoMo request failed ({(int)response.StatusCode}): {body}");
-        }
-        GatewayPaymentResponse momoResponse = JsonSerializer.Deserialize<GatewayPaymentResponse>(body)
+
+        return JsonSerializer.Deserialize<GatewayPaymentResponse>(body)
             ?? throw new InvalidOperationException("MoMo response was empty.");
-        return momoResponse;
     }
 }
