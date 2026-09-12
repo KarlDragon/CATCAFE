@@ -40,10 +40,8 @@ public class PaymentRepository : IPaymentRepository
                     .OrderByDescending(p => p.CreatedAt)
                     .ToListAsync();
     }
-    public async Task<int> GetPaymentIdWithBookingId(int bookingId)
+    public async Task<Payment?> GetPaymentWithBookingId(int bookingId)
     {
-        Payment? payment = await _context.Payments.SingleOrDefaultAsync( p => p.BookingID == bookingId);
-        if (payment == null) return -1;
-        return payment.PaymentID;
+        return await _context.Payments.SingleOrDefaultAsync( p => p.BookingID == bookingId);
     }
 }
