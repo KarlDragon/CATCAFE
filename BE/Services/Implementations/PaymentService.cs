@@ -4,6 +4,8 @@ using BE.Repositories.Interfaces;
 using BE.DTOs;
 using BE.Models;
 using BE.Infrastructure.Payments;
+using BE.Exceptions;
+
 public class PaymentService : IPaymentService
 {
     private readonly IPaymentRepository _paymentRepository;
@@ -21,41 +23,87 @@ public class PaymentService : IPaymentService
         _momoClient = momoClient;
     }
 
-    public async Task CreatePaymentAsync(CreatePaymentDTO createPaymentDTO)
+    //create payment, first paymentAttempt and return payurl
+    public async Task<string> CreatePaymentAsync(CreatePaymentDTO createPaymentDTO, CancellationToken cancellationToken = default)
     {
         int amount = await _bookingService.CalculateTotalBookingPriceAsync(createPaymentDTO.BookingID);
-        var newPayment = new Payment
+
+        int paymentID = await CreatePendingPaymentAsync(createPaymentDTO.BookingID, amount);
+
+        PaymentAttempt attempt = await CreatePaymentAttemptAsync(paymentID);
+
+        string orderInfo = await _bookingService.GetTableInfo(createPaymentDTO.BookingID);
+        var gatewayRequest = BuildGatewayRequest(attempt, amount, orderInfo);
+
+        return await InitiateGatewayPaymentAsync(attempt, gatewayRequest, cancellationToken);
+    }
+
+    //return paymentId
+    private async Task<int> CreatePendingPaymentAsync(int bookingId, int amount)
+    {
+        
+        var payment = new Payment
         {
-            BookingID = createPaymentDTO.BookingID,
+            BookingID = bookingId,
             Amount = amount,
             Status = PaymentStatus.Pending,
             CreatedAt = DateTime.UtcNow
         };
-        int paymentID = await _paymentRepository.CreatePaymentAsync(newPayment);
+        return await _paymentRepository.CreatePaymentAsync(payment);
+    }
 
-        string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss"); 
-        string orderId = $"CATCAFE-{paymentID}-{timestamp}";
-        string requestId = Guid.NewGuid().ToString();
-
-        var newPaymentAttempt = new PaymentAttempt
+    // save attemp into db
+    private async Task<PaymentAttempt> CreatePaymentAttemptAsync(int paymentId)
+    {
+        string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+        var attempt = new PaymentAttempt
         {
-            PaymentID = paymentID,
-            OrderId = orderId,
-            RequestId = requestId,
+            PaymentID = paymentId,
+            OrderId = $"CATCAFE-{paymentId}-{timestamp}",
+            RequestId = Guid.NewGuid().ToString(),
             Status = PaymentAttemptStatus.Init,
             CreatedAt = DateTime.UtcNow
         };
+        attempt.AttemptID = await _paymentAttempRepository.CreatePaymentAttemptAsync(attempt);
+        return attempt;
+    }
 
-        var newGatewayPaymenyRequest = new GatewayPaymentRequest
+    private static GatewayPaymentRequest BuildGatewayRequest(PaymentAttempt attempt, int amount, string orderInfo)
+    {
+        return new GatewayPaymentRequest
         {
-            RequestId = requestId,
+            RequestId = attempt.RequestId,
             Amount = amount,
-            OrderId = orderId,
-            OrderInfo = createPaymentDTO.OrderId,
+            OrderId = attempt.OrderId,
+            OrderInfo = orderInfo,
             ExtraData = ""
         };
-        
-        await _paymentAttempRepository.CreatePaymentAttemptAsync(newPaymentAttempt);
-        await _momoClient.InitiatePayment(newGatewayPaymenyRequest);
+    }
+
+    private async Task<string> InitiateGatewayPaymentAsync(
+        PaymentAttempt attempt, GatewayPaymentRequest gatewayRequest, CancellationToken cancellationToken)
+    {
+        try
+        {
+            GatewayPaymentResponse response = await _momoClient.InitiatePayment(gatewayRequest, cancellationToken);
+
+            var updatePaymentAttempt = new UpdatePaymentAttemptDTO
+            {
+                AttemptId = attempt.AttemptID,
+                Status = PaymentAttemptStatus.Redirected,
+                PayUrl = response.PayUrl
+            };
+            await _paymentAttempRepository.UpdatePaymentAttemptAsync(updatePaymentAttempt);
+            return response.PayUrl;
+        }
+        catch (Exception)
+        {
+            var updatePaymentAttempt = new UpdatePaymentAttemptDTO
+            {
+                Status = PaymentAttemptStatus.Failed
+            };
+            await _paymentAttempRepository.UpdatePaymentAttemptAsync(updatePaymentAttempt);
+            throw;
+        }
     }
 }
