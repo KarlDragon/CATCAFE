@@ -103,6 +103,20 @@ public class PaymentService : IPaymentService
 
             var momoResponse = await _momoClient.SendPaymentRequest(momoRequest, cancellationToken);
 
+            if (momoResponse.ResultCode != 0)
+            {
+                await _paymentAttempRepository.UpdatePaymentAttemptAsync(
+                    new UpdatePaymentAttemptDTO
+                    {
+                        AttemptId = attempt.AttemptID,
+                        Status = PaymentAttemptStatus.Failed,
+                        ResultCode = momoResponse.ResultCode
+                    });
+
+                throw new FailedToCreateException(
+                    $"MoMo payment initiation failed: {momoResponse.Message}");
+            }
+
             var updatePaymentAttempt = new UpdatePaymentAttemptDTO
             {
                 AttemptId = attempt.AttemptID,
@@ -114,11 +128,13 @@ public class PaymentService : IPaymentService
         }
         catch (Exception)
         {
-            var updatePaymentAttempt = new UpdatePaymentAttemptDTO
-            {
-                Status = PaymentAttemptStatus.Failed
-            };
-            await _paymentAttempRepository.UpdatePaymentAttemptAsync(updatePaymentAttempt);
+            await _paymentAttempRepository.UpdatePaymentAttemptAsync(
+                new UpdatePaymentAttemptDTO
+                {
+                    AttemptId = attempt.AttemptID,
+                    Status = PaymentAttemptStatus.Failed
+                });
+
             throw;
         }
     }
@@ -144,5 +160,6 @@ public class PaymentService : IPaymentService
         };
         return await _paymentGatewayLogRepository.CreatePaymentGatewayLogAsync(paymentLog);
     }
+
 
 }
